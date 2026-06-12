@@ -1,0 +1,272 @@
+{
+  "meses": {
+    "2026-06": {
+      "piezas": [
+        {
+          "id": 1,
+          "fecha": "2026-06-11",
+          "dia": "Jue",
+          "formato": "Reel",
+          "titulo": "La remodelación 'económica' que terminó costando el doble",
+          "objetivo": "Awareness",
+          "semana": 1,
+          "estado": "Guion",
+          "updated": "2026-06-10T21:10:08.392Z"
+        },
+        {
+          "id": 2,
+          "fecha": "2026-06-12",
+          "dia": "Vie",
+          "formato": "Reel",
+          "titulo": "El metro cuadrado es el mito que más remodelaciones arruina en Bogotá",
+          "objetivo": "Awareness",
+          "semana": 1,
+          "estado": "Guion",
+          "updated": "2026-06-10T21:10:08.394Z"
+        },
+        {
+          "id": 3,
+          "fecha": "2026-06-13",
+          "dia": "Sáb",
+          "formato": "Carrusel",
+          "titulo": "Nadie creía que este espacio tuviera arreglo. El 3D ya sabía que sí.",
+          "objetivo": "Engagement",
+          "semana": 1,
+          "estado": "Guion",
+          "updated": "2026-06-10T21:10:08.394Z"
+        },
+        {
+          "id": 4,
+          "fecha": "2026-06-15",
+          "dia": "Lun",
+          "formato": "Reel",
+          "titulo": "El render no es una promesa: es el contrato visual de tu obra",
+          "objetivo": "Trust",
+          "semana": 2,
+          "estado": "Guion",
+          "updated": "2026-06-10T21:10:08.394Z"
+        },
+        {
+          "id": 5,
+          "fecha": "2026-06-17",
+          "dia": "Mié",
+          "formato": "Reel",
+          "titulo": "El blanco total quedó atrás: 2026 es el año de la calidez técnica",
+          "objetivo": "Awareness",
+          "semana": 2,
+          "estado": "Guion",
+          "updated": "2026-06-10T21:10:08.394Z"
+        },
+        {
+          "id": 6,
+          "fecha": "2026-06-19",
+          "dia": "Vie",
+          "formato": "Carrusel",
+          "titulo": "Cuatro cosas que te dijeron del 'ahorro' en obra (y la verdad de cada una)",
+          "objetivo": "Lead Gen",
+          "semana": 2,
+          "estado": "Guion",
+          "updated": "2026-06-10T21:10:08.394Z"
+        },
+        {
+          "id": 7,
+          "fecha": "2026-06-22",
+          "dia": "Lun",
+          "formato": "Reel",
+          "titulo": "El Azulejo: la fachada que el barrio veía vieja hoy es su referente",
+          "objetivo": "Conversión",
+          "semana": 3,
+          "estado": "Guion",
+          "updated": "2026-06-10T21:10:08.394Z"
+        },
+        {
+          "id": 8,
+          "fecha": "2026-06-24",
+          "dia": "Mié",
+          "formato": "Reel",
+          "titulo": "Tu presupuesto no depende del metro cuadrado: depende de tres decisiones",
+          "objetivo": "Lead Gen",
+          "semana": 3,
+          "estado": "Guion",
+          "updated": "2026-06-10T21:10:08.394Z"
+        },
+        {
+          "id": 9,
+          "fecha": "2026-06-26",
+          "dia": "Vie",
+          "formato": "Carrusel",
+          "titulo": "Tendencias 2026 aplicadas: así se ven en una obra real, no en Pinterest",
+          "objetivo": "Trust",
+          "semana": 3,
+          "estado": "Guion",
+          "updated": "2026-06-10T21:10:08.394Z"
+        },
+        {
+          "id": 10,
+          "fecha": "2026-06-27",
+          "dia": "Sáb",
+          "formato": "Reel",
+          "titulo": "Ver tu casa renovada antes de gastar un peso: para eso existe el render",
+          "objetivo": "Conversión",
+          "semana": 3,
+          "estado": "Guion",
+          "updated": "2026-06-10T21:10:08.394Z"
+        },
+        {
+          "id": 11,
+          "fecha": "2026-06-29",
+          "dia": "Lun",
+          "formato": "Reel",
+          "titulo": "Tres preguntas que hacen sudar a un contratista informal",
+          "objetivo": "Conversión",
+          "semana": 4,
+          "estado": "Guion",
+          "updated": "2026-06-10T21:10:08.394Z"
+        },
+        {
+          "id": 12,
+          "fecha": "2026-06-30",
+          "dia": "Mar",
+          "formato": "Carrusel",
+          "titulo": "Lo que una cotización seria incluye (y lo que la 'barata' te oculta)",
+          "objetivo": "Lead Gen",
+          "semana": 4,
+          "estado": "Guion",
+          "updated": "2026-06-10T21:10:08.394Z"
+        }
+      ],
+      "stories": [
+        {
+          "id": "S1",
+          "semana": 1,
+          "dia": "Lun 2 Jun",
+          "tipo": "Encuesta",
+          "concepto": "¿Tu oficina actual refleja el nivel de tu empresa?",
+          "objetivo": "Awareness",
+          "estado": "Aprobación cliente",
+          "updated": "2026-06-02T03:17:44.055Z"
+        },
+        {
+          "id": "S2",
+          "semana": 1,
+          "dia": "Mié 4 Jun",
+          "tipo": "Slider/Quiz",
+          "concepto": "Adivina: ¿cuánto tardó esta transformación?",
+          "objetivo": "Engagement",
+          "estado": "Aprobación cliente",
+          "updated": "2026-06-02T03:17:44.140Z"
+        },
+        {
+          "id": "S3",
+          "semana": 1,
+          "dia": "Vie 6 Jun",
+          "tipo": "Carrusel rápido",
+          "concepto": "3 proyectos · 3 estilos · 1 firma",
+          "objetivo": "Awareness",
+          "estado": "Aprobación cliente",
+          "updated": "2026-06-02T03:17:44.198Z"
+        },
+        {
+          "id": "S4",
+          "semana": 2,
+          "dia": "Lun 9 Jun",
+          "tipo": "Cuenta regresiva",
+          "concepto": "En 3 días revelamos un antes y después que no te esperas",
+          "objetivo": "Expectativa",
+          "estado": "Aprobación cliente",
+          "updated": "2026-06-02T03:17:44.244Z"
+        },
+        {
+          "id": "S5",
+          "semana": 2,
+          "dia": "Mié 11 Jun",
+          "tipo": "Pregunta abierta",
+          "concepto": "¿Cuál es el espacio de tu empresa que más necesita intervención?",
+          "objetivo": "Lead capture",
+          "estado": "Aprobación cliente",
+          "updated": "2026-06-02T03:17:44.333Z"
+        },
+        {
+          "id": "S6",
+          "semana": 2,
+          "dia": "Vie 13 Jun",
+          "tipo": "Enlace",
+          "concepto": "Mira el proyecto completo · link en bio",
+          "objetivo": "Tráfico",
+          "estado": "Aprobación cliente",
+          "updated": "2026-06-02T03:17:44.400Z"
+        },
+        {
+          "id": "S7",
+          "semana": 3,
+          "dia": "Lun 16 Jun",
+          "tipo": "Encuesta",
+          "concepto": "¿Sabes cuánto vale realmente un m² bien diseñado en Bogotá?",
+          "objetivo": "Educación",
+          "estado": "Aprobación cliente",
+          "updated": "2026-06-02T03:17:44.463Z"
+        },
+        {
+          "id": "S8",
+          "semana": 3,
+          "dia": "Mié 18 Jun",
+          "tipo": "Video corto",
+          "concepto": "30 segundos en obra · lo que ves y lo que no ves",
+          "objetivo": "Autoridad",
+          "estado": "Aprobación cliente",
+          "updated": "2026-06-02T03:17:44.523Z"
+        },
+        {
+          "id": "S9",
+          "semana": 3,
+          "dia": "Vie 20 Jun",
+          "tipo": "Slider testimonial",
+          "concepto": "Lo que dice un cliente cuando el proyecto supera sus expectativas",
+          "objetivo": "Social proof",
+          "estado": "Aprobación cliente",
+          "updated": "2026-06-02T03:17:44.645Z"
+        },
+        {
+          "id": "S10",
+          "semana": 4,
+          "dia": "Lun 23 Jun",
+          "tipo": "Encuesta",
+          "concepto": "¿Qué frena más tus proyectos: presupuesto, tiempo o proveedor?",
+          "objetivo": "Segmentación",
+          "estado": "Aprobación cliente",
+          "updated": "2026-06-02T03:17:45.047Z"
+        },
+        {
+          "id": "S11",
+          "semana": 4,
+          "dia": "Mié 25 Jun",
+          "tipo": "Carrusel antes/después",
+          "concepto": "De bodega a showroom · La transformación que cambió una empresa",
+          "objetivo": "Conversión",
+          "estado": "Aprobación cliente",
+          "updated": "2026-06-02T03:17:45.122Z"
+        },
+        {
+          "id": "S12",
+          "semana": 4,
+          "dia": "Vie 27 Jun",
+          "tipo": "CTA directo",
+          "concepto": "Cupos junio: 1 disponible · Agenda tu diagnóstico gratis",
+          "objetivo": "Conversión",
+          "estado": "Aprobación cliente",
+          "updated": "2026-06-02T03:17:45.186Z"
+        },
+        {
+          "id": "S13",
+          "semana": 4,
+          "dia": "Dom 28 Jun",
+          "tipo": "Motivacional cierre",
+          "concepto": "Junio fue el mes de construir en serio · Julio empieza con más",
+          "objetivo": "Retención",
+          "estado": "Aprobación cliente",
+          "updated": "2026-06-02T03:17:45.224Z"
+        }
+      ]
+    }
+  }
+}

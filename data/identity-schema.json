@@ -1,0 +1,794 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TimeKeepers AI - Identity Schema v2.0",
+  "description": "Schema oficial del Identity de cliente para TimeKeepers AI. Define estructura, validaciones y mapeo con Excel original v1.0 y v2.0.",
+  "version": "2.0.0",
+  "type": "object",
+  "metadata": {
+    "creado_por": "TimeKeepers AI",
+    "founder": "Ivan",
+    "compatibilidad_n8n": "n8n 2.10.4",
+    "campos_totales": 48,
+    "bloques": 8
+  },
+  "bloques": {
+    "1_adn_marca": {
+      "titulo": "ADN DE MARCA",
+      "descripcion": "Identidad esencial de la empresa. Estos campos casi nunca cambian.",
+      "color_hex": "#D6E4F5",
+      "icono": "🏢",
+      "orden": 1
+    },
+    "2_research_competencia": {
+      "titulo": "RESEARCH Y COMPETENCIA",
+      "descripcion": "Configuración para investigación con Perplexity y análisis de competencia.",
+      "color_hex": "#FFE5B4",
+      "icono": "🔍",
+      "orden": 2
+    },
+    "3_especifico_negocio": {
+      "titulo": "ESPECÍFICO DEL NEGOCIO",
+      "descripcion": "Catálogo, productos, servicios o flota propios de la empresa.",
+      "color_hex": "#E8DFF5",
+      "icono": "📦",
+      "orden": 3
+    },
+    "4_branding_visual": {
+      "titulo": "BRANDING VISUAL",
+      "descripcion": "Colores, hashtags, emojis, tipografías. Lo visual de la marca.",
+      "color_hex": "#FFF4B8",
+      "icono": "🎨",
+      "orden": 4
+    },
+    "5_buyer_persona": {
+      "titulo": "BUYER PERSONA PROFUNDO",
+      "descripcion": "La persona arquetipo del cliente ideal con detalle real.",
+      "color_hex": "#D4F1D4",
+      "icono": "👤",
+      "orden": 5
+    },
+    "6_posicionamiento": {
+      "titulo": "POSICIONAMIENTO ESTRATÉGICO",
+      "descripcion": "Tagline, anti-posicionamiento, diferenciador, pricing.",
+      "color_hex": "#FFD4D4",
+      "icono": "🎯",
+      "orden": 6
+    },
+    "7_operacion_comercial": {
+      "titulo": "OPERACIÓN COMERCIAL TIMEKEEPERS",
+      "descripcion": "Datos internos de la relación con el cliente.",
+      "color_hex": "#FFD8B1",
+      "icono": "💼",
+      "orden": 7
+    },
+    "8_automatizacion": {
+      "titulo": "AUTOMATIZACIÓN N8N",
+      "descripcion": "Campos auto-gestionados por el bot.",
+      "color_hex": "#D4D4D4",
+      "icono": "⚙️",
+      "orden": 8
+    }
+  },
+  "campos": [
+    {
+      "codigo": "A",
+      "campo_n8n": "Empresa",
+      "nombre_humano": "Razón Social",
+      "bloque": "1_adn_marca",
+      "tipo_dato": "texto_corto",
+      "max_chars": 200,
+      "obligatorio": true,
+      "pregunta": "¿Cuál es la razón social completa de la empresa?",
+      "ejemplo": "Draken VIP Limousine LLC",
+      "validacion": {
+        "min_length": 3,
+        "max_length": 200
+      },
+      "mapeo_v1": "A (Empresa_Cliente / Empresa)"
+    },
+    {
+      "codigo": "B",
+      "campo_n8n": "Identidad_Contexto",
+      "nombre_humano": "Identidad y Contexto",
+      "bloque": "1_adn_marca",
+      "tipo_dato": "texto_largo",
+      "max_chars": 2000,
+      "obligatorio": true,
+      "pregunta": "Describe en 3-5 líneas qué hace la empresa, dónde, para quién y qué la hace única.",
+      "ejemplo": "Servicio de transporte ejecutivo premium en Miami...",
+      "validacion": {
+        "min_length": 50,
+        "max_length": 2000
+      },
+      "mapeo_v1": "B (Identidad_Contexto / Identidad)"
+    },
+    {
+      "codigo": "C",
+      "campo_n8n": "Tono_Voz",
+      "nombre_humano": "Tono de Voz",
+      "bloque": "1_adn_marca",
+      "tipo_dato": "texto_medio",
+      "max_chars": 500,
+      "obligatorio": true,
+      "pregunta": "¿Cuáles son los 3-5 atributos del tono de comunicación?",
+      "ejemplo": "Preciso, Humano, Confiable. Profesional. Sin excusas.",
+      "validacion": {
+        "min_length": 20,
+        "max_length": 500
+      },
+      "mapeo_v1": "C (Tono_Voz / Tono)"
+    },
+    {
+      "codigo": "D",
+      "campo_n8n": "Pilares_Contenido",
+      "nombre_humano": "Pilares de Contenido",
+      "bloque": "1_adn_marca",
+      "tipo_dato": "lista_numerada",
+      "min_items": 3,
+      "max_items": 8,
+      "obligatorio": true,
+      "pregunta": "¿Cuáles son los 4-6 pilares de contenido principales?",
+      "ejemplo": "1. Siempre a tiempo. 2. Privacidad y discreción. 3. Seguridad...",
+      "mapeo_v1": "D (Pilares_Contenido / Pilares)"
+    },
+    {
+      "codigo": "E",
+      "campo_n8n": "Oferta_Periodo",
+      "nombre_humano": "Oferta del Periodo",
+      "bloque": "1_adn_marca",
+      "tipo_dato": "texto_medio",
+      "max_chars": 500,
+      "obligatorio": true,
+      "pregunta": "¿Cuál es la oferta destacada de este periodo?",
+      "ejemplo": "Traslados ejecutivos al aeropuerto con rastreo de vuelo en vivo",
+      "actualizable_mensual": true,
+      "mapeo_v1": "E (Oferta_Semana / Oferta)"
+    },
+    {
+      "codigo": "F",
+      "campo_n8n": "Publico_Objetivo",
+      "nombre_humano": "Público Objetivo",
+      "bloque": "1_adn_marca",
+      "tipo_dato": "texto_largo",
+      "max_chars": 1000,
+      "obligatorio": true,
+      "pregunta": "Describe en 1 párrafo el público objetivo principal.",
+      "ejemplo": "Líderes corporativos, equipos de trabajo, invitados VIP...",
+      "mapeo_v1": "F (Publico_Objetivo / Audiencia)"
+    },
+    {
+      "codigo": "G",
+      "campo_n8n": "Keywords_Busqueda",
+      "nombre_humano": "Keywords de Búsqueda",
+      "bloque": "1_adn_marca",
+      "tipo_dato": "lista_comas",
+      "min_items": 5,
+      "max_items": 30,
+      "obligatorio": true,
+      "pregunta": "Lista de keywords/SEO separadas por comas (10-20).",
+      "ejemplo": "Premium executive car service, Vetted chauffeurs...",
+      "mapeo_v1": "G (Keywords_Busqueda / Keywords)"
+    },
+    {
+      "codigo": "H",
+      "campo_n8n": "Historico_Exitos",
+      "nombre_humano": "Histórico de Éxitos",
+      "bloque": "1_adn_marca",
+      "tipo_dato": "texto_largo",
+      "max_chars": 2000,
+      "obligatorio": true,
+      "pregunta": "Casos de éxito o aprendizajes pasados que funcionan.",
+      "ejemplo": "Enfoque en Puntualidad obsesiva resuena con clientes corporativos.",
+      "mapeo_v1": "H (Historico_Exitos / Historico)"
+    },
+    {
+      "codigo": "I",
+      "campo_n8n": "Restricciones",
+      "nombre_humano": "Restricciones",
+      "bloque": "1_adn_marca",
+      "tipo_dato": "texto_medio",
+      "max_chars": 1000,
+      "obligatorio": true,
+      "pregunta": "¿Qué reglas de comunicación, marca o legales hay que respetar siempre?",
+      "ejemplo": "Solo paleta primaria. Solo logos oficiales. Una sola voz.",
+      "mapeo_v1": "I (Restricciones)"
+    },
+    {
+      "codigo": "J",
+      "campo_n8n": "Industria_Nicho",
+      "nombre_humano": "Industria / Nicho",
+      "bloque": "1_adn_marca",
+      "tipo_dato": "texto_corto",
+      "max_chars": 200,
+      "obligatorio": true,
+      "pregunta": "¿En qué industria o nicho específico opera?",
+      "ejemplo": "Transporte Ejecutivo Premium / Luxury Chauffeur Service",
+      "mapeo_v1": "J (Industria / Nicho)"
+    },
+    {
+      "codigo": "K",
+      "campo_n8n": "Ubicacion_Target",
+      "nombre_humano": "Ubicación Target",
+      "bloque": "1_adn_marca",
+      "tipo_dato": "texto_medio",
+      "max_chars": 300,
+      "obligatorio": true,
+      "pregunta": "¿Cuál es la ubicación geográfica objetivo principal y secundaria?",
+      "ejemplo": "Florida (Miami principal) + mercados de lujo USA",
+      "mapeo_v1": "K (Ubicación Target / Ubicacion)"
+    },
+    {
+      "codigo": "L",
+      "campo_n8n": "Foco_Estrategico_Mes",
+      "nombre_humano": "Foco Estratégico del Mes",
+      "bloque": "1_adn_marca",
+      "tipo_dato": "texto_medio",
+      "max_chars": 500,
+      "obligatorio": true,
+      "pregunta": "¿Cuál es el foco estratégico para este mes?",
+      "ejemplo": "Posicionamiento como servicio Premium Executive",
+      "actualizable_mensual": true,
+      "mapeo_v1": "L (Foco Estratégico)"
+    },
+    {
+      "codigo": "M",
+      "campo_n8n": "Competencia_Directa",
+      "nombre_humano": "Competencia Directa",
+      "bloque": "2_research_competencia",
+      "tipo_dato": "lista_comas",
+      "min_items": 3,
+      "max_items": 10,
+      "obligatorio": true,
+      "pregunta": "Top 3-5 competidores directos. Lista nombres reales.",
+      "ejemplo": "ALuxuryLimo, LAX Black Limo, Luxury Miami Co",
+      "mapeo_v1": "M (Competencia Directa / Competencia)"
+    },
+    {
+      "codigo": "M2",
+      "campo_n8n": "Diferenciador_Vs_Competencia",
+      "nombre_humano": "Diferenciador vs Competencia",
+      "bloque": "2_research_competencia",
+      "tipo_dato": "lista_numerada",
+      "min_items": 3,
+      "max_items": 7,
+      "obligatorio": true,
+      "pregunta": "¿Cómo te diferencias de los competidores? Mínimo 3 puntos concretos.",
+      "ejemplo": "1. Rastreo de vuelos en vivo. 2. Choferes 100% verificados.",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "N",
+      "campo_n8n": "Tipo_Busqueda",
+      "nombre_humano": "Tipo de Búsqueda",
+      "bloque": "2_research_competencia",
+      "tipo_dato": "texto_largo",
+      "max_chars": 1500,
+      "obligatorio": true,
+      "pregunta": "¿Qué tipo de tendencias o información buscar para crear contenido?",
+      "ejemplo": "Tendencias en hospitalidad de lujo, eventos exclusivos high-ticket...",
+      "mapeo_v1": "N (Tipo_Busqueda)"
+    },
+    {
+      "codigo": "O",
+      "campo_n8n": "No_Buscar",
+      "nombre_humano": "Temas a NO Buscar",
+      "bloque": "2_research_competencia",
+      "tipo_dato": "lista_comas",
+      "min_items": 3,
+      "max_items": 20,
+      "obligatorio": true,
+      "pregunta": "¿Qué temas evitar completamente en el research?",
+      "ejemplo": "Inteligencia Artificial, Tecnología, Robots, Apps",
+      "mapeo_v1": "O (No_Buscar)"
+    },
+    {
+      "codigo": "P",
+      "campo_n8n": "Catalogo_Servicios",
+      "nombre_humano": "Catálogo / Servicios / Flota",
+      "bloque": "3_especifico_negocio",
+      "tipo_dato": "lista_numerada",
+      "min_items": 1,
+      "max_items": 30,
+      "obligatorio": true,
+      "pregunta": "Lista detallada de productos/servicios/flota que ofrece la empresa.",
+      "ejemplo": "2021 Cadillac Escalade, 2022 Jeep Wagoneer...",
+      "mapeo_v1": "P (Flota_Vehiculos / Servicios_Oferta)"
+    },
+    {
+      "codigo": "Q",
+      "campo_n8n": "Pilares_Evergreen",
+      "nombre_humano": "Pilares Evergreen",
+      "bloque": "3_especifico_negocio",
+      "tipo_dato": "lista_pipe",
+      "min_items": 5,
+      "max_items": 12,
+      "obligatorio": true,
+      "pregunta": "Los 8 pilares estratégicos de contenido evergreen separados por |",
+      "ejemplo": "Posicionamiento B2B | Humanizar el servicio | Educación del mercado | ...",
+      "mapeo_v1": "Q (Pilares_Evergreen)"
+    },
+    {
+      "codigo": "T",
+      "campo_n8n": "Sector_Referentes",
+      "nombre_humano": "Sectores de Referencia",
+      "bloque": "3_especifico_negocio",
+      "tipo_dato": "lista_comas",
+      "min_items": 0,
+      "max_items": 20,
+      "obligatorio": false,
+      "pregunta": "Sectores o industrias de referencia que sirven de inspiración.",
+      "ejemplo": "Hospitality de lujo, aviación privada, yates ejecutivos",
+      "mapeo_v1": "T (Sector_Referentes)"
+    },
+    {
+      "codigo": "R",
+      "campo_n8n": "Color_Marca_Primario",
+      "nombre_humano": "Color Primario",
+      "bloque": "4_branding_visual",
+      "tipo_dato": "color_hex",
+      "obligatorio": true,
+      "pregunta": "Color de marca principal en formato HEX.",
+      "ejemplo": "#9b0b14",
+      "validacion": {
+        "pattern": "^#[0-9a-fA-F]{6}$"
+      },
+      "mapeo_v1": "R (Color_Marca)"
+    },
+    {
+      "codigo": "R2",
+      "campo_n8n": "Paleta_Secundaria",
+      "nombre_humano": "Paleta Secundaria",
+      "bloque": "4_branding_visual",
+      "tipo_dato": "lista_colores_hex",
+      "min_items": 1,
+      "max_items": 6,
+      "obligatorio": true,
+      "pregunta": "Paleta secundaria (3-5 colores HEX separados por comas).",
+      "ejemplo": "#010000, #FFF9F9, #B8941F",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "R3",
+      "campo_n8n": "Tipografia_Oficial",
+      "nombre_humano": "Tipografía Oficial",
+      "bloque": "4_branding_visual",
+      "tipo_dato": "texto_corto",
+      "max_chars": 200,
+      "obligatorio": true,
+      "pregunta": "Tipografía(s) oficiales de la marca.",
+      "ejemplo": "ARTEMUS (titulares), Helvetica (cuerpo)",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "S",
+      "campo_n8n": "Hashtag_Marca",
+      "nombre_humano": "Hashtag Oficial",
+      "bloque": "4_branding_visual",
+      "tipo_dato": "texto_corto",
+      "max_chars": 50,
+      "obligatorio": true,
+      "pregunta": "Hashtag oficial de la marca.",
+      "ejemplo": "#DrakenVIP",
+      "validacion": {
+        "pattern": "^#[A-Za-z0-9_]+$"
+      },
+      "mapeo_v1": "S (Hashtag_Marca)"
+    },
+    {
+      "codigo": "S2",
+      "campo_n8n": "Hashtags_Secundarios",
+      "nombre_humano": "Hashtags Secundarios",
+      "bloque": "4_branding_visual",
+      "tipo_dato": "lista_hashtags",
+      "min_items": 3,
+      "max_items": 15,
+      "obligatorio": true,
+      "pregunta": "Hashtags propios secundarios usados en posts.",
+      "ejemplo": "#ComfortAndSafe, #AlwaysOnTime, #LuxuryRide",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "S3",
+      "campo_n8n": "Hashtags_Prohibidos",
+      "nombre_humano": "Hashtags Prohibidos",
+      "bloque": "4_branding_visual",
+      "tipo_dato": "lista_hashtags",
+      "min_items": 0,
+      "max_items": 20,
+      "obligatorio": true,
+      "pregunta": "Hashtags que NUNCA usar.",
+      "ejemplo": "#cheapride, #uberpremium, #taxi",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "S4",
+      "campo_n8n": "Emojis_Permitidos",
+      "nombre_humano": "Emojis Permitidos",
+      "bloque": "4_branding_visual",
+      "tipo_dato": "lista_emojis",
+      "min_items": 0,
+      "max_items": 30,
+      "obligatorio": false,
+      "pregunta": "Emojis que SÍ se pueden usar en posts.",
+      "ejemplo": "🚗 ✈️ 🏙️ ⏱️ 🔒 ✨",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "S5",
+      "campo_n8n": "Emojis_Prohibidos",
+      "nombre_humano": "Emojis Prohibidos",
+      "bloque": "4_branding_visual",
+      "tipo_dato": "lista_emojis",
+      "min_items": 0,
+      "max_items": 30,
+      "obligatorio": false,
+      "pregunta": "Emojis que NO se deben usar.",
+      "ejemplo": "😂 🤣 💯 🔥",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "F2",
+      "campo_n8n": "Idioma_Comunicacion",
+      "nombre_humano": "Idioma de Comunicación",
+      "bloque": "5_buyer_persona",
+      "tipo_dato": "texto_corto",
+      "max_chars": 200,
+      "obligatorio": true,
+      "pregunta": "¿En qué idioma(s) se comunica con la audiencia?",
+      "ejemplo": "Inglés primario, español secundario (bilingüe)",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "F3",
+      "campo_n8n": "Persona_Arquetipo",
+      "nombre_humano": "Persona Arquetipo",
+      "bloque": "5_buyer_persona",
+      "tipo_dato": "texto_medio",
+      "max_chars": 500,
+      "obligatorio": true,
+      "pregunta": "Crea un arquetipo con nombre ficticio.",
+      "ejemplo": "Carlos, CEO de 48 años, viaja 6 veces al mes",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "F4",
+      "campo_n8n": "Demografico_NSE",
+      "nombre_humano": "Demográfico y NSE",
+      "bloque": "5_buyer_persona",
+      "tipo_dato": "texto_medio",
+      "max_chars": 500,
+      "obligatorio": true,
+      "pregunta": "Edad, nivel socioeconómico, profesión, estado civil.",
+      "ejemplo": "40-65 años, NSE A/B+, ejecutivos C-level",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "F5",
+      "campo_n8n": "Pain_Points",
+      "nombre_humano": "Pain Points",
+      "bloque": "5_buyer_persona",
+      "tipo_dato": "lista_numerada",
+      "min_items": 3,
+      "max_items": 7,
+      "obligatorio": true,
+      "pregunta": "Top 3 dolores/frustraciones que tiene el cliente sin tu servicio.",
+      "ejemplo": "1. Llegar tarde a juntas. 2. Conductor desconocido sin verificar. 3. Inseguridad en ciudades nuevas.",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "F6",
+      "campo_n8n": "Jobs_To_Be_Done",
+      "nombre_humano": "Jobs To Be Done",
+      "bloque": "5_buyer_persona",
+      "tipo_dato": "lista_numerada",
+      "min_items": 2,
+      "max_items": 6,
+      "obligatorio": true,
+      "pregunta": "¿Qué trabajo contrata el cliente al usar tu servicio?",
+      "ejemplo": "1. Llegar a tiempo y relajado. 2. Proyectar status. 3. Trabajar en el carro.",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "F7",
+      "campo_n8n": "Objeciones_Comunes",
+      "nombre_humano": "Objeciones Comunes",
+      "bloque": "5_buyer_persona",
+      "tipo_dato": "lista_numerada",
+      "min_items": 3,
+      "max_items": 8,
+      "obligatorio": true,
+      "pregunta": "Top 5 objeciones típicas antes de comprar.",
+      "ejemplo": "1. ¿No es lo mismo que Uber Black? 2. ¿Por qué tan caro? 3. ¿Y si llega tarde?",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "F8",
+      "campo_n8n": "Que_Valoran",
+      "nombre_humano": "Qué Valoran (más allá del servicio)",
+      "bloque": "5_buyer_persona",
+      "tipo_dato": "lista_numerada",
+      "min_items": 2,
+      "max_items": 5,
+      "obligatorio": true,
+      "pregunta": "Top 3 cosas que valoran más allá de tu servicio.",
+      "ejemplo": "1. Tiempo. 2. Privacidad. 3. Estatus profesional.",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "W",
+      "campo_n8n": "Tagline_Promesa",
+      "nombre_humano": "Tagline / Promesa de Valor",
+      "bloque": "6_posicionamiento",
+      "tipo_dato": "texto_corto",
+      "max_chars": 200,
+      "obligatorio": true,
+      "pregunta": "Tagline o promesa de valor en 1 frase pegajosa.",
+      "ejemplo": "Comfort & Safe — Cada llegada, sin excusas.",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "X",
+      "campo_n8n": "Anti_Posicionamiento",
+      "nombre_humano": "Anti-Posicionamiento",
+      "bloque": "6_posicionamiento",
+      "tipo_dato": "texto_medio",
+      "max_chars": 500,
+      "obligatorio": true,
+      "pregunta": "¿Qué NO somos? (define explícitamente por contraste)",
+      "ejemplo": "NO somos Uber Black. NO somos taxi premium. NO somos servicio masivo.",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "Y",
+      "campo_n8n": "Diferenciador_Numero_1",
+      "nombre_humano": "Diferenciador #1",
+      "bloque": "6_posicionamiento",
+      "tipo_dato": "texto_corto",
+      "max_chars": 300,
+      "obligatorio": true,
+      "pregunta": "El UNO diferenciador #1 más importante.",
+      "ejemplo": "Único servicio con rastreo de vuelo en vivo + despacho proactivo.",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "Z",
+      "campo_n8n": "Pricing_Ticket",
+      "nombre_humano": "Pricing / Ticket Promedio",
+      "bloque": "6_posicionamiento",
+      "tipo_dato": "texto_corto",
+      "max_chars": 200,
+      "obligatorio": true,
+      "pregunta": "Rango de pricing o ticket promedio.",
+      "ejemplo": "$150-$400 USD por traslado / Ticket promedio: $250 USD",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "AA",
+      "campo_n8n": "Plan_Contratado",
+      "nombre_humano": "Plan Contratado",
+      "bloque": "7_operacion_comercial",
+      "tipo_dato": "seleccion",
+      "opciones": ["Plan Estándar", "Plan Deluxe"],
+      "obligatorio": true,
+      "pregunta": "¿Plan Estándar ($900) o Plan Deluxe ($1,500)?",
+      "ejemplo": "Plan Deluxe",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "AB",
+      "campo_n8n": "Fecha_Inicio_Servicio",
+      "nombre_humano": "Fecha de Inicio",
+      "bloque": "7_operacion_comercial",
+      "tipo_dato": "fecha",
+      "obligatorio": true,
+      "pregunta": "Fecha de inicio del contrato.",
+      "ejemplo": "01/03/2026",
+      "validacion": {
+        "formato": "DD/MM/AAAA"
+      },
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "AC",
+      "campo_n8n": "KPIs_Acordados",
+      "nombre_humano": "KPIs Acordados",
+      "bloque": "7_operacion_comercial",
+      "tipo_dato": "lista_numerada",
+      "min_items": 2,
+      "max_items": 8,
+      "obligatorio": true,
+      "pregunta": "KPIs acordados con el cliente.",
+      "ejemplo": "1. +20% alcance Instagram. 2. 50 leads vía WhatsApp/mes.",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "AD",
+      "campo_n8n": "Frecuencia_Entregables",
+      "nombre_humano": "Frecuencia de Entregables",
+      "bloque": "7_operacion_comercial",
+      "tipo_dato": "texto_medio",
+      "max_chars": 500,
+      "obligatorio": true,
+      "pregunta": "¿Qué se entrega y con qué frecuencia?",
+      "ejemplo": "30 posts Instagram/mes, 3 stories/día, 1 reporte mensual",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "AE",
+      "campo_n8n": "Stakeholder_Principal",
+      "nombre_humano": "Stakeholder Principal",
+      "bloque": "7_operacion_comercial",
+      "tipo_dato": "texto_corto",
+      "max_chars": 200,
+      "obligatorio": true,
+      "pregunta": "¿Quién es el contacto principal del cliente?",
+      "ejemplo": "Director de Marketing / Owner",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "AF",
+      "campo_n8n": "Canal_Aprobacion",
+      "nombre_humano": "Canal de Aprobación",
+      "bloque": "7_operacion_comercial",
+      "tipo_dato": "texto_corto",
+      "max_chars": 200,
+      "obligatorio": true,
+      "pregunta": "¿Por qué canal aprueba el cliente el contenido?",
+      "ejemplo": "WhatsApp + Email",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "AG",
+      "campo_n8n": "Tiempo_Aprobacion_Esperado",
+      "nombre_humano": "Tiempo de Aprobación",
+      "bloque": "7_operacion_comercial",
+      "tipo_dato": "texto_corto",
+      "max_chars": 100,
+      "obligatorio": true,
+      "pregunta": "¿Cuántas horas/días tarda en aprobar el cliente?",
+      "ejemplo": "24-48 horas",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "AH",
+      "campo_n8n": "Sensibilidades_Temas_Prohibidos",
+      "nombre_humano": "Sensibilidades / Temas Prohibidos",
+      "bloque": "7_operacion_comercial",
+      "tipo_dato": "lista_comas",
+      "min_items": 0,
+      "max_items": 15,
+      "obligatorio": true,
+      "pregunta": "¿Qué temas evitar por sensibilidad?",
+      "ejemplo": "Política partidista, religión, polémicas mediáticas",
+      "es_nuevo_v2": true,
+      "mapeo_v1": null
+    },
+    {
+      "codigo": "U",
+      "campo_n8n": "tipos_recientes",
+      "nombre_humano": "Tipos Recientes (AUTO)",
+      "bloque": "8_automatizacion",
+      "tipo_dato": "auto",
+      "obligatorio": false,
+      "pregunta": "AUTO. El nodo Anti-Duplicidad lee del historial.",
+      "ejemplo": "(Auto-gestionado por bot n8n)",
+      "auto_gestionado": true,
+      "mapeo_v1": "U (tipos_recientes)"
+    },
+    {
+      "codigo": "V",
+      "campo_n8n": "Tipo_Busqueda_Tendencia",
+      "nombre_humano": "Búsqueda de Tendencias",
+      "bloque": "8_automatizacion",
+      "tipo_dato": "texto_largo",
+      "max_chars": 1500,
+      "obligatorio": true,
+      "pregunta": "Búsqueda extra de tendencias del nicho.",
+      "ejemplo": "Tendencias del sector, eventos clave del mes...",
+      "mapeo_v1": "V (Tipo_Busqueda_Tendencia)"
+    }
+  ],
+  "tipos_dato_definicion": {
+    "texto_corto": {
+      "max_default": 200,
+      "ui_component": "input_text"
+    },
+    "texto_medio": {
+      "max_default": 500,
+      "ui_component": "textarea_2_rows"
+    },
+    "texto_largo": {
+      "max_default": 2000,
+      "ui_component": "textarea_5_rows"
+    },
+    "lista_numerada": {
+      "ui_component": "lista_editable",
+      "separador_render": "\n"
+    },
+    "lista_comas": {
+      "ui_component": "lista_tags",
+      "separador": ","
+    },
+    "lista_pipe": {
+      "ui_component": "lista_editable",
+      "separador": "|"
+    },
+    "lista_hashtags": {
+      "ui_component": "lista_tags_hashtag",
+      "separador": ","
+    },
+    "lista_emojis": {
+      "ui_component": "lista_emojis",
+      "separador": " "
+    },
+    "lista_colores_hex": {
+      "ui_component": "selector_colores_multiple",
+      "separador": ","
+    },
+    "color_hex": {
+      "ui_component": "color_picker",
+      "validacion_pattern": "^#[0-9a-fA-F]{6}$"
+    },
+    "fecha": {
+      "ui_component": "date_picker",
+      "formato": "DD/MM/AAAA"
+    },
+    "seleccion": {
+      "ui_component": "select_dropdown"
+    },
+    "auto": {
+      "ui_component": "readonly_label",
+      "editable": false
+    }
+  },
+  "calculo_score_completitud": {
+    "descripcion": "Score de 0-10 basado en porcentaje de campos obligatorios llenos sin [POR DEFINIR]",
+    "formula": "(campos_llenos / campos_obligatorios_totales) * 10",
+    "campos_obligatorios_totales": 42,
+    "umbrales": {
+      "excelente": 9.0,
+      "bueno": 7.5,
+      "aceptable": 6.0,
+      "insuficiente": 0
+    }
+  },
+  "mapeo_excel_v1_a_v2": {
+    "descripcion": "Mapeo desde el Excel original v1.0 al schema v2.0",
+    "campos_preservados_sin_cambios": [
+      "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
+      "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V"
+    ],
+    "campos_nuevos_v2": [
+      "M2", "R2", "R3", "S2", "S3", "S4", "S5",
+      "F2", "F3", "F4", "F5", "F6", "F7", "F8",
+      "W", "X", "Y", "Z",
+      "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH"
+    ],
+    "compatibilidad_n8n_v1": "100% - todos los campos n8n originales se mantienen con el mismo nombre"
+  }
+}

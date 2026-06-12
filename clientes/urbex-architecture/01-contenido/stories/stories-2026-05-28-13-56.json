@@ -1,0 +1,128 @@
+{
+  "meta": {
+    "cliente": "urbex-architecture",
+    "slug": "urbex-architecture",
+    "tema": "Así se transforma una fachada: proceso real del Proyecto Casa Calera, de boceto a entrega final",
+    "objetivo": "Conversión",
+    "tipo_cadena": "Antes-Después",
+    "total_slides": 5,
+    "elemento_interactivo": "Poll",
+    "cta_dm_keyword": "PROYECTO",
+    "cta_final": "DM 'PROYECTO'",
+    "score_interno": 9.7,
+    "generado": "2026-05-28T13:56"
+  },
+  "slides": [
+    {
+      "numero": 1,
+      "rol": "Gancho",
+      "texto_overlay": "Esto empezó en papel.",
+      "copy_apoyo": "El boceto que materializamos en Casa Calera.",
+      "visual": "Foto del boceto inicial en papel — croquis o plano de la fachada trazado a mano, iluminación cálida sobre escritorio de trabajo. PROHIBIDO mostrar la fachada terminada en este slide.",
+      "elemento_interactivo": null,
+      "duracion_seg": 7,
+      "notas_diseno": "Overlay negro al 40% sobre la foto del boceto. Poppins Bold blanca centrada, tamaño grande. Sin logo ni hashtags. El texto se lee antes que el detalle del croquis."
+    },
+    {
+      "numero": 2,
+      "rol": "Desarrollo — Antes",
+      "texto_overlay": "El punto de partida real.",
+      "copy_apoyo": "Diseñamos cada ángulo antes de mover un ladrillo.",
+      "visual": "Render 3D exterior de la fachada Casa Calera — perspectiva técnica limpia del diseño previo a obra, en tonos neutros. Puede incluir anotaciones de materiales o líneas guía del diseño.",
+      "elemento_interactivo": null,
+      "duracion_seg": 7,
+      "notas_diseno": "El render debe sentirse como 'lo que viene' — genera anticipación. Lato Regular para copy de apoyo, Poppins Bold para overlay. Línea decorativa en Cobre #B87333 como separador inferior del texto."
+    },
+    {
+      "numero": 3,
+      "rol": "Interactivo",
+      "texto_overlay": "¿En qué etapa estás tú?",
+      "copy_apoyo": "Cuéntanos. Coordinamos desde donde estés.",
+      "visual": "Render 3D frontal de la fachada Casa Calera con overlay oscuro al 60%. El fondo refuerza la aspiración sin revelar el resultado fotográfico final.",
+      "elemento_interactivo": {
+        "tipo": "encuesta",
+        "pregunta": "¿En qué etapa estás?",
+        "opcion_a": "Todavía planeando",
+        "opcion_b": "Listo para cotizar"
+      },
+      "duracion_seg": 10,
+      "notas_diseno": "Poll nativo de Instagram en zona central-inferior. Overlay #0D0D0D al 60% sobre el render — el sticker es el foco. Poppins Bold blanca para overlay. El fondo del render visible pero no dominante."
+    },
+    {
+      "numero": 4,
+      "rol": "Clímax — Después",
+      "texto_overlay": "Del render a la entrega.",
+      "copy_apoyo": "Materializamos exactamente lo que diseñamos. Casa Calera.",
+      "visual": "Foto nocturna de la fachada terminada — acabados WPC visibles, iluminación arquitectónica exterior integrada, colores neutros. Calidad editorial, ángulo frontal limpio.",
+      "elemento_interactivo": null,
+      "duracion_seg": 8,
+      "notas_diseno": "Slide de máximo impacto visual — texto mínimo. Overlay muy suave (máx 20% negro en zona del texto). Poppins Bold blanca en tercio superior. Dejar que la fachada terminada sea el protagonista absoluto."
+    },
+    {
+      "numero": 5,
+      "rol": "CTA",
+      "texto_overlay": "Tu fachada puede ser esto.",
+      "copy_apoyo": "Diseño, licencias y obra. Entregado en el plazo acordado. Escríbenos PROYECTO. 🏗️",
+      "visual": "Slide de marca full — fondo negro #0D0D0D con caja central en Cobre #B87333. Logo Urbex Architecture en blanco centrado. Flecha o indicador visual apuntando al botón de mensaje.",
+      "elemento_interactivo": {
+        "tipo": "respuesta_rapida",
+        "instruccion": "Toca 'Enviar mensaje' y escribe PROYECTO",
+        "keyword_dm": "PROYECTO"
+      },
+      "duracion_seg": 7,
+      "notas_diseno": "Full-brand: fondo #0D0D0D, caja CTA bordeada en Cobre #B87333, Poppins Bold blanca. Dato RS9-B ('Diseño, licencias y obra. Entregado en el plazo acordado.') aparece ENCIMA del CTA. Hashtags al pie: #UrbexArchitecture #EspaciosUrbex #ArquitecturaBogota"
+    }
+  ],
+  "specs_produccion": {
+    "formato": "9:16 · 1080×1920px",
+    "duracion_total_seg": 39,
+    "paleta_aplicada": {
+      "primario": "#0D0D0D",
+      "acento_calido": "#B87333",
+      "fondo_claro": "#F5F5F5",
+      "gris_neutro": "#808080"
+    },
+    "tipografias": ["Poppins Bold (overlays)", "Lato Regular (copy de apoyo)"],
+    "material_requerido": [
+      "Foto boceto inicial Casa Calera en papel (croquis a mano) — slide 1 GANCHO (NO fachada terminada)",
+      "Render 3D fachada Casa Calera — perspectiva técnica exterior con anotaciones — slide 2",
+      "Render 3D fachada Casa Calera — composición para fondo de poll — slide 3",
+      "Foto nocturna fachada terminada Casa Calera — acabados WPC + iluminación exterior — slide 4",
+      "Logo Urbex Architecture PNG fondo transparente — slide 5 CTA"
+    ],
+    "hashtags_finales": [
+      "#UrbexArchitecture",
+      "#EspaciosUrbex",
+      "#ArquitecturaBogota",
+      "#RemodelacionPremium",
+      "#DiseñoArquitectonico"
+    ],
+    "emojis_usados": ["🏗️"],
+    "keyword_dm_nueva": "PROYECTO"
+  },
+  "auto_qa": {
+    "RS1_gancho_palabras": 4,
+    "RS1_cumple": true,
+    "RS2_narrativa_continua": true,
+    "RS2_nota": "Boceto/papel(1) → Render/planeación(2) → Segmentación del lead(3) → Resultado real(4) → CTA(5) — flujo Antes-Después con captura de intención en el punto de mayor tensión narrativa",
+    "RS3_un_interactivo": true,
+    "RS3_slide": 3,
+    "RS3_tipo": "encuesta",
+    "RS4_un_solo_cta": true,
+    "RS4_slide": 5,
+    "RS5_overlay_max_8_palabras": true,
+    "RS5_maximo_encontrado": 6,
+    "RS5_slide_maximo": 3,
+    "RS6_keyword_dm_no_repetida": true,
+    "RS6_keywords_usadas_anteriormente": ["CASO", "LICENCIA", "ASESORIA", "GERENCIA"],
+    "RS6_keyword_nueva": "PROYECTO",
+    "RS7_visual_gancho_valido": true,
+    "RS7_nota": "Slide 1 muestra boceto inicial en papel — estado ANTES. La fachada terminada aparece por primera vez en slide 4.",
+    "RS8_interactivo_estrategico": true,
+    "RS8_nota": "Poll '¿En qué etapa estás?' con opciones 'Todavía planeando' vs 'Listo para cotizar' — segmenta leads por temperatura de compra, directamente accionable para ventas.",
+    "RS9_estado": "completo",
+    "RS9_dato_alcance": "Diseño, licencias y obra.",
+    "RS9_dato_tiempo": "Entregado en el plazo acordado.",
+    "score_final": 9.7
+  }
+}

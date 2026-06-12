@@ -1,0 +1,229 @@
+{
+  "meta": {
+    "cliente": "draken-vip",
+    "slug": "draken-vip",
+    "evento": null,
+    "semanas": 2,
+    "total_piezas": 6,
+    "generado": "2026-05-19 18:28"
+  },
+  "piezas": [
+    {
+      "numero": 1,
+      "semana": 1,
+      "fecha": "Lun 19 May",
+      "dia": "Lunes",
+      "formato": "Carrusel",
+      "titulo": "5 Safety Features Your Rideshare App Will Never Offer",
+      "caption": "Most people think any black car is 'safe enough.'\n\nIt isn't.\n\nThe driver behind the wheel of your last rideshare app passed one background check — years ago.\n\nDraken drivers are re-verified every 6 months.\nPlus: vehicle inspection, defensive driving certification, and direct dispatch support on every ride.\n\nSwipe through the 5 safety standards your rideshare app will never match. 👇\n\n→ Save this post. Share it with someone who travels for work.\n\n#DrakenLimo #ComfortAndSafe #ExecutiveChauffeur #LuxuryTransport #MiamiLimo",
+      "material": "PATRÓN C · Slide 1: Hook — '5 Safety Standards Your Rideshare Will Never Match 🛡️' (fondo negro, tipografía ARTEMUS) · Slide 2: Background check bi-annual (Draken) vs one-time (rideshare) · Slide 3: Live flight tracking — dispatched before you land · Slide 4: Monthly vehicle inspection vs unverified personal car · Slide 5: 24/7 direct dispatch line — real human support · Slide 6: Vetted bilingual drivers — zero language barrier · Slide 7: CTA 'Now you know the standard.' | Usar Fotos 1-2 del banco (interiores premium Escalade) para slides de contraste visual",
+      "hook_primer_frame": "Slide 1: Fondo negro intenso + texto ARTEMUS blanco/rojo: '5 Safety Standards Your Rideshare App Will Never Match 🛡️'",
+      "cta": "Guardar + Compartir",
+      "hashtags": "#DrakenLimo #ComfortAndSafe #ExecutiveChauffeur #LuxuryTransport #MiamiLimo",
+      "objetivo": "Awareness",
+      "angulo": "Educativo",
+      "estado": "⬜ Pendiente",
+      "auto_qa": "5/5 aprobados · todos los ítems aplicables aprobados · QA Técnico: aprobado"
+    },
+    {
+      "numero": 2,
+      "semana": 1,
+      "fecha": "Mié 21 May",
+      "dia": "Miércoles",
+      "formato": "Foto",
+      "titulo": "Your 9 AM Meeting Doesn't Care About Traffic",
+      "caption": "Your 9 AM meeting doesn't know about traffic.\nIt doesn't care about late drivers.\nIt only knows if you showed up on time.\n\nAt Draken, we track your flight in real time.\nYour driver is dispatched before you land.\nThe car is outside before you clear customs.\n\nArriving late isn't just an inconvenience —\nit's the deal you didn't close.\n\nHow much has a late driver already cost you this year? 👔\n\nDM us 'SAFE' and we'll send you everything you need to book your next executive transfer.\n\n#DrakenLimo #ComfortAndSafe #ExecutiveChauffeur #LuxuryTransport #VIPTravel",
+      "material": "Foto 3 del banco: Exterior Cadillac Escalade frente a edificio corporativo o terminal de aeropuerto — plano medio-frontal, iluminación premium, composición centrada. Overlay de texto mínimo: 'We were dispatched before you landed.' en tipografía ARTEMUS.",
+      "hook_primer_frame": "Foto fija con overlay centrado: 'We were dispatched before you landed.' — tipografía ARTEMUS, fondo oscuro, posición inferior-izquierda.",
+      "cta": "DM 'SAFE' 👔",
+      "hashtags": "#DrakenLimo #ComfortAndSafe #ExecutiveChauffeur #LuxuryTransport #VIPTravel",
+      "objetivo": "Conversión",
+      "angulo": "Ejecutivo",
+      "estado": "⬜ Pendiente",
+      "auto_qa": "5/5 aprobados · todos los ítems aplicables aprobados · QA Técnico: aprobado (keyword 'SAFE' presente en caption · cierre R2 Formato C aplicado)"
+    },
+    {
+      "numero": 3,
+      "semana": 1,
+      "fecha": "Vie 23 May",
+      "dia": "Viernes",
+      "formato": "Reel",
+      "titulo": "What Riding in a Draken Limo Actually Feels Like",
+      "caption": "This is what the back seat of a Draken limo feels like.\n\nNo delays. No surprises.\nJust a clean, private space to prepare — or decompress.\n\nOur drivers don't speak unless you want to speak.\nThey don't play music unless you choose it.\nThey don't share your route with anyone.\n\nThis isn't just transportation.\nThis is what it feels like to travel without friction. ✨\n\nTag someone who deserves this kind of ride. 👇\n\n#DrakenLimo #ComfortAndSafe #LuxuryTransport #MiamiLimo #VIPTravel",
+      "material": "Video 1 del banco: Interior Cadillac Escalade — plano desde asiento trasero hacia adelante, cámara lenta, luz ambiente cálida, detalle cuero negro. GUION HABLADO: 'This is what the back seat of a Draken limo feels like. / No delays. No surprises. / Just a clean, private space — to prepare, or decompress. / Our drivers don't speak unless you want to speak. / They don't play music unless you choose it. / And they never share your route with anyone. / This isn't transportation. / This is traveling without friction.'",
+      "hook_primer_frame": "Frame 1 (0.0s): [Plano interior Escalade asiento trasero — cuero negro, luz suave ambiente] + texto overlay inmediato 'This is what zero stress feels like.' · 9:16 · 1080×1920",
+      "cta": "Tag someone who deserves this kind of ride. 👇",
+      "hashtags": "#DrakenLimo #ComfortAndSafe #LuxuryTransport #MiamiLimo #VIPTravel",
+      "objetivo": "Awareness",
+      "angulo": "Lifestyle",
+      "estado": "⬜ Pendiente",
+      "auto_qa": "6/6 aprobados · todos los ítems aplicables aprobados · QA Técnico: aprobado"
+    },
+    {
+      "numero": 4,
+      "semana": 2,
+      "fecha": "Lun 26 May",
+      "dia": "Lunes",
+      "formato": "Carrusel",
+      "titulo": "VIP Limo vs Rideshare App: The Safety Truth Nobody Publishes",
+      "caption": "Everyone says rideshare apps are 'good enough.'\n\nGood enough for grocery runs, maybe.\nNot for a $40K pitch meeting.\nNot when missing the flight is simply not an option.\n\nHere's the real comparison nobody publishes.\nSwipe before your next corporate trip. →\n\nSave this. Share it with your executive assistant.\n\n#DrakenLimo #ComfortAndSafe #ExecutiveChauffeur #LuxuryTransport #MiamiLimo",
+      "material": "PATRÓN D · Slide 1: 'VIP Limo vs Rideshare App — The Safety Truth' (fondo negro, ARTEMUS) · Slide 2: Mito 'Background checks are the same' ↔ Realidad 'Rideshare: once. Draken: every 6 months.' · Slide 3: Mito 'The car will be there' ↔ Realidad 'Draken dispatches 45 min before landing. Rideshare: depends on surge.' · Slide 4: Mito 'Any black car is the same' ↔ Realidad 'Draken fleet: inspected monthly. Rideshare: someone's personal vehicle.' · Slide 5: Mito 'A 4.9 rating guarantees safety' ↔ Realidad 'Stars don't run background checks.' · Slide 6: Tesis — '4.9 ⭐ is not a safety standard. A bi-annual background check is.' · Slide 7: CTA | Usar Foto 4 del banco para slides laterales Draken",
+      "hook_primer_frame": "Slide 1: Fondo negro + texto ARTEMUS rojo/blanco: 'VIP Limo vs Rideshare App: The Safety Truth Nobody Publishes 🛡️'",
+      "cta": "Guardar + Compartir",
+      "hashtags": "#DrakenLimo #ComfortAndSafe #ExecutiveChauffeur #LuxuryTransport #MiamiLimo",
+      "objetivo": "Awareness",
+      "angulo": "Comparativo",
+      "estado": "⬜ Pendiente",
+      "auto_qa": "5/5 aprobados · todos los ítems aplicables aprobados · QA Técnico: aprobado (PATRÓN D — distinto al Patrón C de Pieza #1)"
+    },
+    {
+      "numero": 5,
+      "semana": 2,
+      "fecha": "Mié 28 May",
+      "dia": "Miércoles",
+      "formato": "Foto",
+      "titulo": "He Had 20 Minutes to Make an 8 AM Meeting. We Got Him There.",
+      "caption": "His flight landed at 7:14 AM.\nThe meeting was at 8:00 AM.\nDowntown Miami. Rush hour.\n\nHe didn't call us when he landed.\nHe didn't need to.\n\nWe were already tracking his flight.\nHis driver was already positioned outside.\nHe walked out. Got in. Made it with 4 minutes to spare.\n\nThat's not luck.\nThat's what obsessive punctuality actually looks like. ⏱️\n\nHave you ever had a transfer that worked exactly as promised?\nTell us below. 👇\n\n#DrakenLimo #ComfortAndSafe #ExecutiveChauffeur #VIPTravel #MiamiLimo",
+      "material": "Foto 5 del banco: Driver en posición profesional junto al Escalade, o close-up del dashboard/volante — composición premium, luz natural o controlada. Overlay opcional: '7:14 AM · 8:00 AM · 4 min to spare.' en tipografía ARTEMUS sobre fondo oscuro semitransparente.",
+      "hook_primer_frame": "Foto fija con overlay: '7:14 AM landing. 8:00 AM meeting. 4 minutes to spare.' — tipografía ARTEMUS, posición central superior, fondo oscuro.",
+      "cta": "Tell us below. 👇",
+      "hashtags": "#DrakenLimo #ComfortAndSafe #ExecutiveChauffeur #VIPTravel #MiamiLimo",
+      "objetivo": "Engagement",
+      "angulo": "Caso de éxito",
+      "estado": "⬜ Pendiente",
+      "auto_qa": "3/4 aprobados · Objetivo Engagement no está en matriz R3 para Foto — pregunta abierta aplicada como best practice · QA Técnico: aprobado"
+    },
+    {
+      "numero": 6,
+      "semana": 2,
+      "fecha": "Vie 30 May",
+      "dia": "Viernes",
+      "formato": "Reel",
+      "titulo": "Your Driver Was Ready Before You Landed",
+      "caption": "Your flight lands.\nYou're already thinking about the next meeting.\n\nDon't think about the ride.\n\nWe tracked your flight.\nWe dispatched your driver 45 minutes ago.\nThe Escalade is outside. Your name is on the display.\n\nThis is what Comfort & Safe actually means.\n\nDM us 'ARRIVE' ✈️ and we'll have you confirmed in under 4 minutes.\n\nThe last executive who messaged us was in his Escalade before baggage claim opened. No surprises. No waiting. 🚗\n\n#DrakenLimo #ComfortAndSafe #LuxuryTransport #ExecutiveChauffeur #NYCLimo",
+      "material": "Video 2 del banco: Exterior Cadillac Escalade en aeropuerto — driver en posición profesional, display con nombre del cliente visible, luz golden hour o noche urbana. GUION HABLADO: 'Your flight just landed. / You're already thinking about the next meeting. / Don't think about the ride. / We tracked your flight. / We dispatched your driver 45 minutes ago. / The Escalade is outside. Your name is on the display. / This — is what Comfort & Safe actually means.'",
+      "hook_primer_frame": "Frame 1 (0.0s): [Exterior Escalade aeropuerto — driver posición profesional, display nombre cliente] + texto overlay inmediato 'Your driver was ready before you landed.' · 9:16 · 1080×1920",
+      "cta": "DM 'ARRIVE' ✈️",
+      "hashtags": "#DrakenLimo #ComfortAndSafe #LuxuryTransport #ExecutiveChauffeur #NYCLimo",
+      "objetivo": "Conversión",
+      "angulo": "Promocional",
+      "estado": "⬜ Pendiente",
+      "auto_qa": "7/7 aprobados · todos los ítems aplicables aprobados · QA Técnico: aprobado (keyword 'ARRIVE' en caption · cierre R2 Formato B aplicado)"
+    }
+  ],
+  "guia_produccion": [
+    {
+      "numero": 1,
+      "pieza": "Carrusel #1 (Pieza #1)",
+      "tipo_edicion": "Diseño editorial estático — 7 slides. Fondo negro intenso, tipografía ARTEMUS blanco y rojo #9b0b14. Slide 1: headline bold + ícono escudo. Slides 2-6: comparativa visual (✓ Draken / ✗ Rideshare) con íconos minimalistas. Slide 7: CTA limpio sobre fondo rojo Draken.",
+      "specs_tecnicas": "4:5 · 1080×1350 · @2x · JPG calidad 95% · 7 slides",
+      "musica_mood": "N/A — carrusel estático",
+      "prioridad": "ALTA"
+    },
+    {
+      "numero": 2,
+      "pieza": "Foto #1 (Pieza #2)",
+      "tipo_edicion": "Edición fotográfica premium — contraste alto, ligero desaturado para tonos ejecutivos. Overlay de texto ARTEMUS posición inferior-izquierda. Paleta: rojo Draken + negro + blanco. Sin filtros artificiales visibles.",
+      "specs_tecnicas": "4:5 · 1080×1350 · 72dpi · sin filtro de red social",
+      "musica_mood": "N/A — foto estática",
+      "prioridad": "ALTA"
+    },
+    {
+      "numero": 3,
+      "pieza": "Reel #1 (Pieza #3)",
+      "tipo_edicion": "Slow-motion interior. Cuts suaves al ritmo ambient. Subtítulos animados bold minimal (fondo oscuro semitransparente). Color grade: negros densos, acentos rojos sutiles, warmth interior. Fade in/fade out elegante.",
+      "specs_tecnicas": "9:16 · 1080×1920 · 30fps · 22-28s · Subtítulos ARTEMUS",
+      "musica_mood": "Ambient electronica · BPM 70-90 · Sin letra · Mood: sereno, premium, ejecutivo",
+      "prioridad": "ALTA"
+    },
+    {
+      "numero": 4,
+      "pieza": "Carrusel #2 (Pieza #4)",
+      "tipo_edicion": "Diseño comparativo dos columnas — izquierda gris (rideshare), derecha negro/rojo (Draken). ARTEMUS. Mito en gris claro, Realidad en blanco bold. Separación visual limpia entre columnas. Slide de tesis con tipografía oversized.",
+      "specs_tecnicas": "4:5 · 1080×1350 · 7 slides · JPG calidad 95%",
+      "musica_mood": "N/A — carrusel estático",
+      "prioridad": "MEDIA"
+    },
+    {
+      "numero": 5,
+      "pieza": "Foto #2 (Pieza #5)",
+      "tipo_edicion": "Foto documental ejecutiva — intervención mínima, naturalidad premium. Overlay datos clave (7:14 AM / 8:00 AM / 4 min to spare) en ARTEMUS, fondo oscuro semitransparente 60%. Sin filtros que comprometan credibilidad.",
+      "specs_tecnicas": "4:5 · 1080×1350 · 72dpi · colores naturales corregidos",
+      "musica_mood": "N/A — foto estática",
+      "prioridad": "MEDIA"
+    },
+    {
+      "numero": 6,
+      "pieza": "Reel #2 (Pieza #6)",
+      "tipo_edicion": "Toma exterior aeropuerto. Movimiento de cámara suave (tracking o steadicam). Driver primer plano, Escalade al fondo. Subtítulos animados bold. Color grade cinematográfico: contraste alto, negro profundo, acentos dorados o rojos según luz disponible.",
+      "specs_tecnicas": "9:16 · 1080×1920 · 30fps · 18-25s · Subtítulos ARTEMUS",
+      "musica_mood": "Cinematic ambient · BPM 80-100 · Sin letra · Mood: confianza, movimiento, premium",
+      "prioridad": "ALTA"
+    }
+  ],
+  "banco_material": [
+    {
+      "numero": 1,
+      "descripcion": "Foto: Interior Cadillac Escalade — plano asiento trasero, cuero negro, luz ambiente cálida",
+      "tipo": "FOTO",
+      "uso_sugerido": "Carrusel educativo (Pieza #1) — slides de contexto visual premium",
+      "calidad": "★★★★☆",
+      "piezas_asignadas": "Pieza #1",
+      "estado": "⬜ Sin editar"
+    },
+    {
+      "numero": 2,
+      "descripcion": "Foto: Interior detalle — puerta, consola central o techo del Escalade",
+      "tipo": "FOTO",
+      "uso_sugerido": "Carrusel educativo (Pieza #1) — refuerza calidad percibida del vehículo",
+      "calidad": "★★★★☆",
+      "piezas_asignadas": "Pieza #1",
+      "estado": "⬜ Sin editar"
+    },
+    {
+      "numero": 3,
+      "descripcion": "Foto: Exterior Cadillac Escalade frente a edificio corporativo o terminal de aeropuerto",
+      "tipo": "FOTO",
+      "uso_sugerido": "Foto ejecutiva (Pieza #2) — hero shot principal",
+      "calidad": "★★★★☆",
+      "piezas_asignadas": "Pieza #2",
+      "estado": "⬜ Sin editar"
+    },
+    {
+      "numero": 4,
+      "descripcion": "Foto: Exterior Escalade en contexto premium (hotel 5 estrellas, aeropuerto o calle urbana nocturna)",
+      "tipo": "FOTO",
+      "uso_sugerido": "Carrusel comparativo (Pieza #4) — lado Draken del layout",
+      "calidad": "★★★★☆",
+      "piezas_asignadas": "Pieza #4",
+      "estado": "⬜ Sin editar"
+    },
+    {
+      "numero": 5,
+      "descripcion": "Foto: Driver en posición profesional junto al vehículo, o close-up dashboard/volante",
+      "tipo": "FOTO",
+      "uso_sugerido": "Foto caso de éxito (Pieza #5) — credibilidad visual + overlay de datos",
+      "calidad": "★★★★☆",
+      "piezas_asignadas": "Pieza #5",
+      "estado": "⬜ Sin editar"
+    },
+    {
+      "numero": 6,
+      "descripcion": "Video: Interior Cadillac Escalade — plano desde asiento trasero, movimiento suave o cámara lenta, luz ambiente cálida",
+      "tipo": "VIDEO",
+      "uso_sugerido": "Reel lifestyle (Pieza #3) — metraje principal slow-mo interior",
+      "calidad": "★★★★☆",
+      "piezas_asignadas": "Pieza #3",
+      "estado": "⬜ Sin editar"
+    },
+    {
+      "numero": 7,
+      "descripcion": "Video: Exterior Escalade en aeropuerto — driver en posición, display con nombre del cliente, movimiento de llegada",
+      "tipo": "VIDEO",
+      "uso_sugerido": "Reel promocional (Pieza #6) — metraje principal hero shot aeropuerto",
+      "calidad": "★★★★☆",
+      "piezas_asignadas": "Pieza #6",
+      "estado": "⬜ Sin editar"
+    }
+  ]
+}

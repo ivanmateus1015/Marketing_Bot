@@ -1,0 +1,114 @@
+{
+  "mes_activo": "2026-06",
+  "meses": {
+    "2026-06": {
+      "mes": "2026-06",
+      "north_star_metric": "leads",
+      "objetivo_macro": "Posicionar a Urbex como la firma de arquitectura integral más confiable de Bogotá, generar los primeros seguidores calificados y capturar los primeros leads reales antes de que termine junio.",
+      "objetivos": {
+        "seguidores": 150,
+        "leads": 8,
+        "asesorias": 3,
+        "tasa_guardados": 5,
+        "engagement_rate": 4,
+        "stories_vistas": 60
+      },
+      "objetivos_meta": {
+        "seguidores": "+150 seguidores",
+        "leads": "Mínimo 8 leads",
+        "asesorias": "Mínimo 3",
+        "tasa_guardados": ">5% por publicación",
+        "engagement_rate": ">4%",
+        "stories_vistas": ">60% de seguidores"
+      },
+      "objetivos_desc": {
+        "seguidores": "Meta conservadora. Con contenido consistente 3x semana es alcanzable.",
+        "leads": "Personas que escriben la palabra clave del CTA o preguntan por proyectos.",
+        "asesorias": "Conversiones directas del contenido de semana 3.",
+        "tasa_guardados": "Indicador de contenido de valor. Objetivo vs publicaciones de awareness puro.",
+        "engagement_rate": "Para cuentas pequeñas, 4%+ es excelente. La audiencia pequeña debe ser activa.",
+        "stories_vistas": "Métrica de calidad de audiencia. Si baja de 40%, revisar formato de stories."
+      },
+      "baselines": {
+        "seguidores": null,
+        "leads": null,
+        "asesorias": null,
+        "tasa_guardados": null,
+        "engagement_rate": null,
+        "stories_vistas": null
+      },
+      "mix_contenido": {
+        "Awareness": 50,
+        "Conversion": 35,
+        "Educacion": 15
+      },
+      "semanas": [
+        {
+          "numero": 1,
+          "fechas": "2–6 Jun",
+          "foco": "Awareness + Posicionamiento de marca",
+          "objetivo_principal": "Awareness + Posicionamiento de marca\nEstablecer tono, identidad visual y autoridad desde el primer post",
+          "kpis": "Impresiones · Nuevos seguidores · Guardados",
+          "cta_semana": "Etiqueta a quien necesita verlo · Guarda esto",
+          "exito_si": "La cuenta suma +50 seguidores nuevos y los primeros posts superan 200 impresiones",
+          "resultados_reales": {
+            "impresiones": null,
+            "seguidores_nuevos": null,
+            "guardados": null
+          }
+        },
+        {
+          "numero": 2,
+          "fechas": "9–13 Jun",
+          "foco": "Educación + Primera conversión",
+          "objetivo_principal": "Educación + Primera conversión\nDemostrar con prueba concreta (antes/después) que Urbex entrega resultados",
+          "kpis": "Alcance · DMs recibidos · Comentarios",
+          "cta_semana": "Escríbenos CASO por DM · ¿Tienes una obra próxima?",
+          "exito_si": "Se reciben los primeros 3–5 DMs de personas interesadas en proyectos",
+          "resultados_reales": {
+            "alcance": null,
+            "dms": null,
+            "comentarios": null
+          }
+        },
+        {
+          "numero": 3,
+          "fechas": "16–20 Jun",
+          "foco": "Autoridad técnica + Captura de leads",
+          "objetivo_principal": "Autoridad técnica + Captura de leads\nLa oferta de asesoría gratuita genera contactos reales calificados",
+          "kpis": "DMs con palabra clave · Guardados en la oferta · Clicks a perfil",
+          "cta_semana": "Escríbenos ASESORIA · Escríbenos LICENCIA",
+          "exito_si": "Mínimo 5 leads calificados con asesoría agendada antes del 20 Jun",
+          "resultados_reales": {
+            "dms_keyword": null,
+            "guardados": null,
+            "clicks_perfil": null
+          }
+        },
+        {
+          "numero": 4,
+          "fechas": "23–27 Jun",
+          "foco": "Portfolio + Cierre con autoridad B2B",
+          "objetivo_principal": "Portfolio + Cierre de mes con autoridad B2B\nMostrar la escala y diversidad de proyectos para atraer clientes corporativos",
+          "kpis": "Seguidores acumulados · Engagement rate · Leads totales del mes",
+          "cta_semana": "Escríbenos GERENCIA · Guarda el portafolio",
+          "exito_si": "Cerrar junio con +150 seguidores y mínimo 8 leads documentados en el mes",
+          "resultados_reales": {
+            "seguidores_total": null,
+            "engagement_rate": null,
+            "leads_total": null
+          }
+        }
+      ],
+      "resultados_reales": {
+        "seguidores": null,
+        "leads": null,
+        "asesorias": null,
+        "tasa_guardados": null,
+        "engagement_rate": null,
+        "stories_vistas": null
+      },
+      "notas": "Plan importado desde Urbex_Plan_Junio_2026.xlsx"
+    }
+  }
+}
