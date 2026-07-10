@@ -9,6 +9,13 @@ const fs         = require('fs');
 const path       = require('path');
 const http       = require('http');
 const https      = require('https');
+const { Pool }   = require('pg');
+const { Meilisearch } = require('meilisearch');
+
+// ── Base de datos ─────────────────────────────────────────────────────────────
+const db = new Pool({ database: 'timekeepers', host: 'localhost' });
+const meili = new Meilisearch({ host: 'http://localhost:7700' });
+db.on('error', (e) => log(`[PG] ${e.message}`));
 
 const app  = express();
 const PORT = 3737;
@@ -245,7 +252,11 @@ function leerHistorial(slug) {
       if (skipH) { skipH = false; continue; }
       const cols = line.split('|').map(c => c.trim()).filter(Boolean);
       if (cols.length >= 5 && cols[0] !== 'Fecha') {
-        bitacora.push({ fecha: cols[0], tipo: cols[1], archivo: cols[2], skills: cols[3], angulos: cols[4], score: cols[5] || '—' });
+        // Limpiar el campo archivo: quedarse solo con el .json si hay sufijos extra ("/ .xlsx", etc.)
+        const archivoRaw = cols[2] || '';
+        const jsonMatch  = archivoRaw.match(/[\w\-\.]+\.json/);
+        const archivo    = jsonMatch ? jsonMatch[0] : archivoRaw;
+        bitacora.push({ fecha: cols[0], tipo: cols[1], archivo, skills: cols[3], angulos: cols[4], score: cols[5] || '—' });
       }
     }
   }
@@ -675,7 +686,7 @@ app.post('/api/cliente/:slug/generar-prompt-parrilla', (req, res) => {
   const { slug } = req.params;
   if (!clienteExiste(slug)) return res.status(404).json({ ok: false, error: `Cliente "${slug}" no existe` });
 
-  const { semanas = 1, descripcion = '', material = '', skills_seleccionadas = [] } = req.body;
+  const { semanas = 1, descripcion = '', material = '', skills_seleccionadas = [], incluir_critica = false } = req.body;
   const identityJson = readJsonSafe(path.join(getClienteDir(slug), '00-identity', 'identity.json'));
   const nombre = identityJson?.['A'] || slug;
   const plan   = identityJson?.['AA'] || '—';
@@ -714,8 +725,7 @@ Cliente: **${slug}**
    - Hooks y conceptos ya trabajados → prohibido repetir
    - Patrones de carrusel usados → rotar
 
-3. Lee las últimas 2 parrillas en clientes/${slug}/01-contenido/parrillas/:
-   - Identificar qué copy ya se usó → no repetir ninguna frase ni concepto
+3. NO abrir parrillas JSON anteriores. El _historial.md ya documenta todo lo necesario para anti-repetición: hooks, keywords DM, tesis y patrones de carrusel. Leer los JSON directamente multiplica los tokens sin aportar info nueva.
 
 ---
 
@@ -762,10 +772,12 @@ Estructura exacta. Sin campos extra. Sin guia_produccion. Sin banco_material.
   ]
 }
 
-Prohibido incluir: hora, prioridad, specs, caption_reel, caption_version_b,
-hook_reel_a, hook_reel_b, hashtag_stack, meta_ad_carrusel, story_teaser,
-email_nurturing_hook, kpi_tracking, trigger_psicologico, objecion_respuesta,
-brief_imagen, nivel_produccion, angulo, guia_produccion, banco_material.
+Prohibido incluir: caption_en, cta_en, script_en, hook_en (las traducciones al inglés
+son un paso separado — NO generarlas aquí), hora, prioridad, specs, caption_reel,
+caption_version_b, hook_reel_a, hook_reel_b, hashtag_stack, meta_ad_carrusel,
+story_teaser, email_nurturing_hook, kpi_tracking, trigger_psicologico,
+objecion_respuesta, brief_imagen, nivel_produccion, angulo, guia_produccion,
+banco_material.
 
 ---
 
@@ -858,12 +870,13 @@ No usar objetivo único. Siempre dos.
 
 ---
 
-## PASO 7 — HONESTIDAD EN EL OUTPUT
+## PASO 7 — ${incluir_critica ? 'REVISIÓN DE CALIDAD' : 'REPORTE MÍNIMO'}
 
-NO reportar score a menos que la calidad lo justifique objetivamente.
-Si hay piezas con copy genérico, hooks débiles o CTAs sin urgencia → declararlo y proponer reescritura.
-Un score inventado no ayuda a mejorar — una crítica honesta sí.
-Al finalizar: reportar qué piezas son las más fuertes, cuáles necesitan revisión y por qué.
+${incluir_critica
+  ? `Al finalizar, una tabla de 3 columnas: Pieza | Fortaleza principal | Riesgo o debilidad.
+Sin score inventado. Sin párrafos. Solo la tabla.`
+  : `Si detectás una pieza con hook descriptivo o CTA genérico, señalarlo en una sola línea.
+Nada más — no elaborar.`}
 
 ---
 
@@ -875,10 +888,10 @@ Al finalizar: reportar qué piezas son las más fuertes, cuáles necesitan revis
    - Hooks y tesis principales (para no repetir)
    - Patrones de carrusel usados
    - Proyectos referenciados
-3. Reportar honestamente: piezas fuertes, piezas a mejorar, por qué.`.trim();
+3. Confirmar en una línea: archivo guardado + historial actualizado.`.trim();
 
-  log(`[${slug}] Prompt parrilla generado — ${semanas} semanas, ${totalPosts} posts`);
-  res.json({ ok: true, slug, prompt, semanas, total_posts: totalPosts });
+  log(`[${slug}] Prompt parrilla generado — ${semanas} semanas, ${totalPosts} posts${incluir_critica ? ' · con crítica' : ''}`);
+  res.json({ ok: true, slug, prompt, semanas, total_posts: totalPosts, incluir_critica });
 });
 
 // ── Excel generator ───────────────────────────────────────────────────────────
@@ -887,170 +900,348 @@ async function generarParrillaExcel(data) {
   wb.creator = 'TimeKeepers AI';
   wb.created = new Date();
 
-  // Paleta
-  const NEGRO   = 'FF0D0D0D';
-  const COBRE   = 'FFB87333';
-  const OSCURO  = 'FF1A1A1A';
-  const SEP_BG  = 'FF2C2C2C';
-  const BLANCO  = 'FFF5F5F5';
-  const TEXTO   = 'FF0D0D0D';
-  const BORDE   = 'FFD9D9D9';
-  const REEL_BG = 'FFF8F0F0';
-  const CAR_BG  = 'FFF0F4F8';
-  const FOTO_BG = 'FFF0F8F0';
-  const REEL_FG = 'FFC62828';
-  const CAR_FG  = 'FF1565C0';
-  const FOTO_FG = 'FF2E7D32';
-  const ALTA_C  = 'FFB87333';
-  const MEDIA_C = 'FF888888';
-  const BAJA_C  = 'FFAAAAAA';
+  // ── Paleta exacta del template de referencia ──────────────────────────────
+  const NAVY_STRIP   = 'FF0B0F19'; // tira decorativa superior/inferior
+  const RED_BANNER   = 'FF9B0000'; // banner principal + separadores de semana
+  const RED_HEADER   = 'FF7B0D0D'; // fila de headers de columnas
+  const DARK_SCRIPT  = 'FF0D1117'; // fondo script ES (casi negro)
+  const NAVY_SCRIPT  = 'FF0F1A2E'; // fondo script EN (navy oscuro)
+  const REEL_FMT     = 'FF1A2550'; // badge Reel
+  const CAR_FMT      = 'FF2C3E6B'; // badge Carrusel
+  const FOTO_FMT     = 'FF2E5930'; // badge Foto
+  const OBJ_BG       = 'FF1A3A5C'; // fondo objetivo
+  const CTA_BG       = 'FF7B0D0D'; // fondo CTA (mismo que header)
+  const HOOK_BG      = 'FFFFEBEE'; // fondo HOOK (rosa muy suave)
+  const CAP_ES_BG    = 'FFFFFAF0'; // fondo caption ES (crema cálida)
+  const CAP_EN_BG    = 'FFF0F4FF'; // fondo caption EN (azul muy suave)
+  const MAT_BG       = 'FFE8F4FD'; // fondo material (azul info muy suave)
+  const HASH_BG      = 'FFF8F8F8'; // fondo hashtags (off-white)
+  const ROW_ODD      = 'FFF8F8F8'; // fila impar data
+  const ROW_EVEN     = 'FFFFFFFF'; // fila par data
+  const WHITE        = 'FFFFFFFF';
+  const GRAY_TEXT    = 'FF555555';
+  const DARK_TEXT    = 'FF0B0F19';
+  const BLUE_TEXT    = 'FF1A5276';
+  const RED_TEXT     = 'FF8B0000';
+  const BORDE        = 'FFE0E0E0';
 
-  // Columnas: # · FECHA · DÍA · HORA · PLATAFORMA · FORMATO · TÍTULO · PILAR · OBJETIVO · MATERIAL · HOOK · NARRACIÓN · COPY SLIDES · CAPTION · CTA · HASHTAGS · ESTADO
-  const TOTAL_COLS = 17;
+  const TOTAL_COLS = 16;
 
-  // ── Hoja única: Parrilla ───────────────────────────────────────────────────
-  const ws = wb.addWorksheet('Parrilla');
+  const ws = wb.addWorksheet('📋 Parrilla + Script');
+  ws.views = [{ state: 'frozen', xSplit: 0, ySplit: 4 }];
 
-  const anchos = [4, 11, 8, 10, 20, 8, 30, 22, 14, 30, 35, 40, 45, 50, 35, 30, 16];
+  // Anchos: # · FECHA · PILAR · DÍA · FORMATO · TÍTULO · CAP ES · CAP EN · HOOK · MATERIAL · SCRIPT ES · SCRIPT EN · CTA · HASHTAGS · OBJETIVO · STATUS
+  const anchos = [5, 11, 20, 10, 12, 24, 34, 34, 20, 20, 44, 44, 16, 15, 13, 11];
   anchos.forEach((w, i) => { ws.getColumn(i + 1).width = w; });
 
-  const clienteNombre = (data.meta?.cliente || data.meta?.slug || 'Cliente').toUpperCase();
-  const periodo = data.meta?.periodo || data.meta?.generado || '';
-  const mercado = data.meta?.mercado || '';
-  const pubSemana = data.meta?.publicaciones_por_semana || 3;
+  const slug          = data.meta?.slug || data.meta?.cliente || '';
+  const clienteNombre = (slug || 'Cliente').toUpperCase();
+  const periodo       = data.meta?.periodo || data.meta?.generado || '';
+  const evento        = data.meta?.evento  || '';
+  const semanas       = data.meta?.semanas || 2;
+  const totalPiezas   = (data.piezas || []).length;
+  const reels         = (data.piezas || []).filter(p => /reel/i.test(p.formato || '')).length;
+  const carruseles    = (data.piezas || []).filter(p => /carrusel/i.test(p.formato || '')).length;
+  const bilingue      = (data.piezas || []).some(p => p.caption_en);
 
-  // ── Fila 1: Banner ─────────────────────────────────────────────────────────
-  const bannerRow = ws.addRow([
-    `${clienteNombre} · CONTENT CALENDAR · ${periodo}${mercado ? ' · ' + mercado : ''}`
-  ]);
+  function applyFill(cell, argb) {
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb } };
+  }
+  function applyFont(cell, opts) {
+    cell.font = { name: 'Arial', size: 9, ...opts };
+  }
+  function applyAlign(cell, opts) {
+    cell.alignment = { wrapText: true, ...opts };
+  }
+  function setBorder(cell) {
+    cell.border = { bottom: { style: 'hair', color: { argb: BORDE } } };
+  }
+
+  // ── Fila 1: Tira decorativa superior ─────────────────────────────────────
+  const r1 = ws.addRow(['']);
   ws.mergeCells(1, 1, 1, TOTAL_COLS);
-  const bannerCell = ws.getCell('A1');
-  bannerCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: NEGRO } };
-  bannerCell.font = { bold: true, color: { argb: BLANCO }, size: 12, name: 'Arial' };
-  bannerCell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-  bannerRow.height = 22;
+  applyFill(ws.getCell(1, 1), NAVY_STRIP);
+  r1.height = 14;
 
-  // ── Fila 2: Headers ─────────────────────────────────────────────────────────
+  // ── Fila 2: Banner principal ──────────────────────────────────────────────
+  ws.addRow([]);
+  const r2 = ws.getRow(2);
+  r2.height = 52;
+
+  // Sección izquierda: nombre cliente + periodo (C1–C10)
+  ws.mergeCells(2, 1, 2, 10);
+  const r2left = ws.getCell(2, 1);
+  applyFill(r2left, RED_BANNER);
+  applyFont(r2left, { bold: true, color: { argb: WHITE }, size: 11 });
+  applyAlign(r2left, { vertical: 'middle', horizontal: 'center' });
+  r2left.value = `${clienteNombre} · CONTENT CALENDAR${periodo ? ' · ' + periodo : ''}${evento ? '\n' + evento.toUpperCase() : ''}`;
+
+  // Sección scripts (C11–C12)
+  ws.mergeCells(2, 11, 2, 12);
+  const r2scripts = ws.getCell(2, 11);
+  applyFill(r2scripts, DARK_SCRIPT);
+  applyFont(r2scripts, { bold: true, color: { argb: WHITE }, size: 8.5 });
+  applyAlign(r2scripts, { vertical: 'middle', horizontal: 'center' });
+  r2scripts.value = `📽️ ON-SCREEN SCRIPTS\n🇪🇸 ES (Col K)  ·  🇺🇸 EN (Col L)\nTexto pantalla frame a frame`;
+
+  // Sección derecha: estadísticas (C13–C16)
+  ws.mergeCells(2, 13, 2, 16);
+  const r2right = ws.getCell(2, 13);
+  applyFill(r2right, RED_BANNER);
+  applyFont(r2right, { bold: true, color: { argb: WHITE }, size: 8.5 });
+  applyAlign(r2right, { vertical: 'middle', horizontal: 'center' });
+  r2right.value = `${totalPiezas} PIEZAS · ${semanas} SEMANAS\n${reels} Reels + ${carruseles} Carruseles\n${bilingue ? '🇪🇸 ES  ·  🇺🇸 EN' : '🇪🇸 ESPAÑOL'}`;
+
+  // ── Fila 3: Tagline framework ─────────────────────────────────────────────
+  const r3 = ws.addRow(['']);
+  ws.mergeCells(3, 1, 3, TOTAL_COLS);
+  const r3cell = ws.getCell(3, 1);
+  applyFill(r3cell, NAVY_STRIP);
+  applyFont(r3cell, { color: { argb: 'FFCCCCCC' }, size: 8 });
+  applyAlign(r3cell, { vertical: 'middle', horizontal: 'center' });
+  r3cell.value = 'Framework PAS · Copies bilingües · Hooks humanos · On-Screen Script ES + EN separados · TimeKeepers AI';
+  r3.height = 13;
+
+  // ── Fila 4: Headers de columnas ───────────────────────────────────────────
   const HEADERS = [
-    '#', 'FECHA', 'DÍA', 'HORA', 'PLATAFORMA', 'FORMATO',
-    'TÍTULO / CONCEPTO', 'PILAR', 'OBJETIVO',
-    'MATERIAL A USAR', 'HOOK / PRIMER FRAME',
-    'NARRACIÓN OFF', 'COPY SLIDES',
-    'CAPTION POST', 'CTA + KEYWORD DM',
-    'HASHTAGS', 'ESTADO'
+    '#',
+    'FECHA\nDATE',
+    '📌 PILAR\nCONTENT PILLAR',
+    'DÍA\nDAY',
+    'FORMATO',
+    'TÍTULO\nCONCEPT',
+    '🇪🇸 CAPTION\nESPAÑOL (PAS)',
+    '🇺🇸 CAPTION\nENGLISH (PAS)',
+    '🪝 HOOK\nES · EN',
+    '📁 MATERIAL',
+    '📽️ ON-SCREEN\n🇪🇸 SCRIPT ES\n(texto pantalla)',
+    '📽️ ON-SCREEN\n🇺🇸 SCRIPT EN\n(on-screen text)',
+    '📣 CTA\nES · EN',
+    '#️⃣ HASHTAGS',
+    '🎯 OBJETIVO',
+    'STATUS'
   ];
-  const headerRow = ws.addRow(HEADERS);
-  headerRow.height = 22;
-  headerRow.eachCell(cell => {
-    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: OSCURO } };
-    cell.font = { bold: true, color: { argb: COBRE }, size: 9, name: 'Arial' };
-    cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+  const r4 = ws.addRow(HEADERS);
+  r4.height = 36;
+  r4.eachCell({ includeEmpty: true }, (cell, colNum) => {
+    if (colNum <= TOTAL_COLS) {
+      const isScriptES = colNum === 11;
+      const isScriptEN = colNum === 12;
+      applyFill(cell, isScriptES ? DARK_SCRIPT : isScriptEN ? 'FF0F2A4A' : RED_HEADER);
+      applyFont(cell, { bold: true, color: { argb: WHITE }, size: 8.5 });
+      applyAlign(cell, { vertical: 'middle', horizontal: 'center' });
+    }
   });
 
-  // Freeze A–F siempre visibles (#, fecha, día, hora, plataforma, formato)
-  ws.views = [{ state: 'frozen', xSplit: 6, ySplit: 2 }];
-
+  // ── Data rows ─────────────────────────────────────────────────────────────
   let lastSemana = 0;
+  let rowIndex   = 0;
 
   for (const p of (data.piezas || [])) {
-    const semana = p.semana || Math.ceil((p.numero || 1) / pubSemana);
+    const semana  = p.semana || Math.ceil((p.numero || 1) / 3);
+    const formato = (p.formato || '').trim();
+    const esReel  = /reel/i.test(formato);
+    const esCar   = /carrusel/i.test(formato);
+    const objetivo = p.objetivo || '';
 
-    // Separador de semana
+    // ── Separador de semana ─────────────────────────────────────────────────
     if (semana !== lastSemana) {
       lastSemana = semana;
-      const sepRow = ws.addRow([`── SEMANA ${semana} ──`]);
-      ws.mergeCells(sepRow.number, 1, sepRow.number, TOTAL_COLS);
-      const sepCell = ws.getCell(sepRow.number, 1);
-      sepCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: SEP_BG } };
-      sepCell.font = { bold: true, color: { argb: BLANCO }, size: 9, name: 'Arial' };
-      sepCell.alignment = { vertical: 'middle', horizontal: 'center' };
-      sepRow.height = 16;
+      const sr = ws.addRow([]);
+      sr.height = 20;
+      const evLabel = p.evento_semana || (evento ? evento + ' · SEMANA ' + semana : '');
+
+      // C1–C3: "SEMANA N · WEEK N"
+      ws.mergeCells(sr.number, 1, sr.number, 3);
+      const sc1 = ws.getCell(sr.number, 1);
+      applyFill(sc1, RED_BANNER);
+      applyFont(sc1, { bold: true, color: { argb: WHITE }, size: 9 });
+      applyAlign(sc1, { vertical: 'middle', horizontal: 'center' });
+      sc1.value = `SEMANA ${semana} · WEEK ${semana}`;
+
+      // C4–C15: evento o contexto de semana
+      ws.mergeCells(sr.number, 4, sr.number, TOTAL_COLS);
+      const sc4 = ws.getCell(sr.number, 4);
+      applyFill(sc4, RED_BANNER);
+      applyFont(sc4, { bold: true, color: { argb: WHITE }, size: 9 });
+      applyAlign(sc4, { vertical: 'middle', horizontal: 'center' });
+      sc4.value = evLabel ? `  ${evLabel.toUpperCase()}  ` : '';
     }
 
-    // Resolver copy_slides (string nuevo | array viejo)
-    let copySlides = '';
-    if (Array.isArray(p.copy_slides)) {
-      copySlides = p.copy_slides.map(s =>
-        `S${s.slide}[${s.rol || ''}] ${s.texto_principal || ''}${s.texto_apoyo ? ' · ' + s.texto_apoyo : ''}`
-      ).join('\n');
-    } else if (typeof p.copy_slides === 'string') {
-      copySlides = p.copy_slides;
+    // ── Calcular valores de celdas ──────────────────────────────────────────
+    const captionES = p.caption_es || p.caption_post || p.caption || '';
+    const captionEN = p.caption_en || '';
+
+    // HOOK: combinar ES + EN si existen
+    let hookVal = p.hook || p.hook_primer_frame || '';
+    if (p.hook_en && p.hook_en !== hookVal) {
+      hookVal = `🇪🇸 ${hookVal}\n🇺🇸 ${p.hook_en}`;
+    } else if (hookVal && !hookVal.startsWith('🇪🇸')) {
+      hookVal = hookVal;
     }
 
-    const caption   = p.caption_post || p.caption || '';
-    const ctaKw     = p.cta_keyword  || (p.cta && p.keyword_dm ? `${p.cta} · DM '${p.keyword_dm}'` : (p.cta || (p.keyword_dm ? `DM '${p.keyword_dm}'` : '')));
-    const narracion = p.narracion_off || '';
-    const formato   = p.formato || '';
-    const objetivo  = p.objetivo || '';
-
-    // Color de fondo por formato
-    let rowBg;
-    switch (formato.toLowerCase()) {
-      case 'reel':     rowBg = REEL_BG; break;
-      case 'carrusel': rowBg = CAR_BG;  break;
-      case 'foto':     rowBg = FOTO_BG; break;
-      default:         rowBg = 'FFFFFFFF';
+    // SCRIPT ES: teleprompter (script_grabacion) para Reels, guía de slides para Carruseles
+    let scriptES = p.script_es || '';
+    if (!scriptES) {
+      if (esReel) {
+        // Prioridad: script_grabacion (teleprompter) > narracion_off > material
+        scriptES = p.script_grabacion || p.narracion_off || p.material || '';
+      } else if (esCar) {
+        // Convertir copy_slides a guía legible
+        if (Array.isArray(p.copy_slides)) {
+          scriptES = '— CARRUSEL · No aplica on-screen script —\n\nGUÍA DE SLIDES:\n' +
+            p.copy_slides.map(s => `S${s.slide} [${s.rol || ''}]: ${s.texto_principal || ''}\n  ↳ ${s.texto_apoyo || ''}`).join('\n');
+        } else {
+          scriptES = '— CARRUSEL · No aplica on-screen script —\n\n' + (p.copy_slides || p.material || '');
+        }
+      } else {
+        scriptES = p.material || '';
+      }
     }
 
-    const dataRow = ws.addRow([
-      p.numero  || '',
-      p.fecha   || '',
-      p.dia     || '',
-      p.hora    || '',
-      p.plataforma || '',
+    const scriptEN = p.script_en || (esCar ? '— CARRUSEL · No aplica on-screen script —' : '');
+
+    // Material: en Reels es el brief visual; en Carruseles es el material disponible
+    const material = esReel ? (p.material || '') : (p.material || '');
+
+    // CTA: combinar ES + EN
+    const ctaES = p.cta_es || p.cta || p.cta_keyword || '';
+    const ctaEN = p.cta_en || '';
+    let ctaVal  = ctaES;
+    if (ctaEN && ctaEN !== ctaES) ctaVal = `🇪🇸 ${ctaES}\n🇺🇸 ${ctaEN}`;
+    if (p.keyword_dm && !ctaVal.includes(p.keyword_dm)) ctaVal += `\nDM '${p.keyword_dm}'`;
+
+    const statusVal = p.estado || '⬜ Pendiente';
+
+    // ── Agregar fila ────────────────────────────────────────────────────────
+    const pilarVal = (p.pilar || '').split(' — ')[0] || p.pilar || '';
+    const dr = ws.addRow([
+      p.numero || '',
+      p.fecha  || '',
+      pilarVal,
+      p.dia    || '',
       formato,
-      p.titulo  || '',
-      p.pilar   || '',
-      objetivo,
-      p.material || '',
-      p.hook_primer_frame || '',
-      narracion,
-      copySlides,
-      caption,
-      ctaKw,
+      p.titulo || '',
+      captionES,
+      captionEN,
+      hookVal,
+      material,
+      scriptES,
+      scriptEN,
+      ctaVal,
       p.hashtags || '',
-      p.estado   || '1️⃣ Guion'
+      objetivo,
+      statusVal
     ]);
 
-    dataRow.height = 90;
+    rowIndex++;
+    const isOdd = rowIndex % 2 !== 0;
+    dr.height = esReel ? 160 : esCar ? 130 : 100;
 
-    dataRow.eachCell(cell => {
-      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowBg } };
-      cell.font = { size: 8.5, name: 'Arial', color: { argb: TEXTO } };
-      cell.alignment = { vertical: 'top', horizontal: 'left', wrapText: true };
-      cell.border = { bottom: { style: 'hair', color: { argb: BORDE } } };
+    // Fondo base por paridad de fila
+    const rowBase = isOdd ? ROW_ODD : ROW_EVEN;
+
+    dr.eachCell({ includeEmpty: true }, (cell, colNum) => {
+      if (colNum <= TOTAL_COLS) {
+        applyFill(cell, rowBase);
+        applyFont(cell, { size: 8.5, color: { argb: GRAY_TEXT } });
+        applyAlign(cell, { vertical: 'top', horizontal: 'left' });
+        setBorder(cell);
+      }
     });
 
-    // Col A (#): negro / blanco / centrado
-    const cA = dataRow.getCell(1);
-    cA.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: NEGRO } };
-    cA.font = { bold: true, color: { argb: BLANCO }, size: 9, name: 'Arial' };
-    cA.alignment = { vertical: 'middle', horizontal: 'center', wrapText: false };
+    // ── Celdas con estilos especiales ─────────────────────────────────────
+    // C1 (#): navy oscuro, blanco, centrado
+    const c1 = dr.getCell(1);
+    applyFill(c1, NAVY_STRIP);
+    applyFont(c1, { bold: true, color: { argb: WHITE }, size: 10 });
+    applyAlign(c1, { vertical: 'middle', horizontal: 'center', wrapText: false });
 
-    // Col F (FORMATO): color por tipo
-    const cF = dataRow.getCell(6);
-    let fmtBg;
-    switch (formato.toLowerCase()) {
-      case 'reel':     fmtBg = REEL_FG; break;
-      case 'carrusel': fmtBg = CAR_FG;  break;
-      case 'foto':     fmtBg = FOTO_FG; break;
-      default:         fmtBg = 'FF666666';
-    }
-    cF.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fmtBg } };
-    cF.font = { bold: true, color: { argb: BLANCO }, size: 8.5, name: 'Arial' };
-    cF.alignment = { vertical: 'middle', horizontal: 'center', wrapText: false };
+    // C3 (PILAR): fondo verde salvia muy suave, texto oscuro centrado
+    const c3 = dr.getCell(3);
+    applyFill(c3, 'FFEFF5EE');
+    applyFont(c3, { bold: true, color: { argb: 'FF2D5A27' }, size: 8 });
+    applyAlign(c3, { vertical: 'middle', horizontal: 'center', wrapText: true });
 
-    // Col D (HORA): centrada, bold
-    const cHora = dataRow.getCell(4);
-    cHora.alignment = { vertical: 'middle', horizontal: 'center', wrapText: false };
-    cHora.font = { bold: true, size: 8.5, name: 'Arial', color: { argb: TEXTO } };
+    // C5 (FORMATO): badge de color
+    const c5 = dr.getCell(5);
+    const fmtBg = esReel ? REEL_FMT : esCar ? CAR_FMT : /foto/i.test(formato) ? FOTO_FMT : 'FF444444';
+    const fmtEmoji = esReel ? '🎬 ' : esCar ? '🖼️ ' : '📷 ';
+    applyFill(c5, fmtBg);
+    applyFont(c5, { bold: true, color: { argb: WHITE }, size: 8.5 });
+    applyAlign(c5, { vertical: 'middle', horizontal: 'center', wrapText: false });
+    c5.value = fmtEmoji + formato;
 
-    // Col I (OBJETIVO): cobre si es Conversión o Lead Gen
-    const cI = dataRow.getCell(9);
-    if (/conversión|lead gen/i.test(objetivo)) {
-      cI.font = { bold: true, color: { argb: COBRE }, size: 8.5, name: 'Arial' };
-    }
+    // C6 (TÍTULO): texto oscuro bold
+    const c6 = dr.getCell(6);
+    applyFill(c6, rowBase);
+    applyFont(c6, { bold: true, color: { argb: DARK_TEXT }, size: 8.5 });
+
+    // C7 (Caption ES): fondo crema cálida
+    const c7 = dr.getCell(7);
+    applyFill(c7, CAP_ES_BG);
+    applyFont(c7, { color: { argb: GRAY_TEXT }, size: 8.5 });
+
+    // C8 (Caption EN): fondo azul muy suave
+    const c8 = dr.getCell(8);
+    applyFill(c8, CAP_EN_BG);
+    applyFont(c8, { color: { argb: GRAY_TEXT }, size: 8.5 });
+
+    // C9 (HOOK): fondo rosado, texto rojo oscuro bold
+    const c9 = dr.getCell(9);
+    applyFill(c9, HOOK_BG);
+    applyFont(c9, { bold: true, color: { argb: RED_TEXT }, size: 8.5 });
+
+    // C10 (MATERIAL): fondo azul info suave
+    const c10 = dr.getCell(10);
+    applyFill(c10, MAT_BG);
+    applyFont(c10, { color: { argb: BLUE_TEXT }, size: 8.5 });
+
+    // C11 (Script ES): fondo oscuro, texto blanco
+    const c11 = dr.getCell(11);
+    applyFill(c11, DARK_SCRIPT);
+    applyFont(c11, { color: { argb: WHITE }, size: 8 });
+
+    // C12 (Script EN): fondo navy oscuro, texto blanco
+    const c12 = dr.getCell(12);
+    applyFill(c12, NAVY_SCRIPT);
+    applyFont(c12, { color: { argb: WHITE }, size: 8 });
+
+    // C13 (CTA): fondo rojo oscuro, texto blanco bold
+    const c13 = dr.getCell(13);
+    applyFill(c13, CTA_BG);
+    applyFont(c13, { bold: true, color: { argb: WHITE }, size: 8.5 });
+
+    // C14 (HASHTAGS): fondo off-white, texto azul
+    const c14 = dr.getCell(14);
+    applyFill(c14, HASH_BG);
+    applyFont(c14, { color: { argb: BLUE_TEXT }, size: 8 });
+
+    // C15 (OBJETIVO): fondo navy, texto blanco bold
+    const c15 = dr.getCell(15);
+    applyFill(c15, OBJ_BG);
+    applyFont(c15, { bold: true, color: { argb: WHITE }, size: 8.5 });
+    applyAlign(c15, { vertical: 'middle', horizontal: 'center', wrapText: true });
+
+    // C16 (STATUS): color por estado
+    const c16 = dr.getCell(16);
+    const isPublicado = /publicado/i.test(statusVal);
+    const isAprobado  = /aprobado/i.test(statusVal);
+    const statusBg    = isPublicado ? 'FF1B5E20' : isAprobado ? 'FF0D47A1' : rowBase;
+    const statusFc    = (isPublicado || isAprobado) ? WHITE : GRAY_TEXT;
+    applyFill(c16, statusBg);
+    applyFont(c16, { color: { argb: statusFc }, size: 8.5, bold: isPublicado || isAprobado });
+    applyAlign(c16, { vertical: 'middle', horizontal: 'center', wrapText: false });
   }
+
+  // ── Fila final: tira decorativa inferior ─────────────────────────────────
+  const rfinal = ws.addRow(['TimeKeepers AI · Uso interno']);
+  ws.mergeCells(rfinal.number, 1, rfinal.number, TOTAL_COLS);
+  const rfinalCell = ws.getCell(rfinal.number, 1);
+  applyFill(rfinalCell, NAVY_STRIP);
+  applyFont(rfinalCell, { color: { argb: 'FF666666' }, size: 7.5 });
+  applyAlign(rfinalCell, { vertical: 'middle', horizontal: 'center' });
+  rfinal.height = 10;
 
   return wb.xlsx.writeBuffer();
 }
@@ -1968,6 +2159,138 @@ app.post('/api/seo-audit', async (req, res) => {
     log(`[SEO] Error: ${err.message}`);
     res.status(500).json({ ok: false, error: err.message });
   }
+});
+
+// ── PostgreSQL — Endpoints ────────────────────────────────────────────────────
+
+// GET /api/db/clientes — lista todos los clientes desde PG
+app.get('/api/db/clientes', async (req, res) => {
+  try {
+    const r = await db.query('SELECT * FROM clientes ORDER BY nombre');
+    res.json({ ok: true, clientes: r.rows });
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
+// GET /api/db/cliente/:slug — datos completos de un cliente
+app.get('/api/db/cliente/:slug', async (req, res) => {
+  try {
+    const c = await db.query('SELECT * FROM clientes WHERE slug=$1', [req.params.slug]);
+    if (!c.rows.length) return res.status(404).json({ ok: false, error: 'Cliente no encontrado' });
+    const cliente = c.rows[0];
+    const [identity, parrillas, historial, objetivos, leads] = await Promise.all([
+      db.query('SELECT bloque,campo,valor FROM identities WHERE cliente_id=$1 ORDER BY bloque,campo', [cliente.id]),
+      db.query('SELECT * FROM parrillas WHERE cliente_id=$1 ORDER BY created_at DESC', [cliente.id]),
+      db.query('SELECT * FROM historial WHERE cliente_id=$1 ORDER BY fecha DESC LIMIT 20', [cliente.id]),
+      db.query('SELECT * FROM objetivos WHERE cliente_id=$1 ORDER BY mes DESC', [cliente.id]),
+      db.query('SELECT * FROM leads WHERE cliente_id=$1 ORDER BY created_at DESC', [cliente.id]),
+    ]);
+    res.json({ ok: true, cliente, identity: identity.rows, parrillas: parrillas.rows,
+               historial: historial.rows, objetivos: objetivos.rows, leads: leads.rows });
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
+// GET /api/db/cliente/:slug/piezas — todas las piezas de un cliente
+app.get('/api/db/cliente/:slug/piezas', async (req, res) => {
+  try {
+    const c = await db.query('SELECT id FROM clientes WHERE slug=$1', [req.params.slug]);
+    if (!c.rows.length) return res.status(404).json({ ok: false, error: 'Cliente no encontrado' });
+    const { estado, formato, objetivo } = req.query;
+    let q = 'SELECT p.*, pa.archivo as parrilla_archivo FROM piezas p LEFT JOIN parrillas pa ON pa.id=p.parrilla_id WHERE p.cliente_id=$1';
+    const params = [c.rows[0].id];
+    if (estado)   { params.push(estado);   q += ` AND p.estado=$${params.length}`; }
+    if (formato)  { params.push(formato);  q += ` AND p.formato=$${params.length}`; }
+    if (objetivo) { params.push(objetivo); q += ` AND p.objetivo=$${params.length}`; }
+    q += ' ORDER BY p.created_at DESC';
+    const r = await db.query(q, params);
+    res.json({ ok: true, total: r.rows.length, piezas: r.rows });
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
+// PATCH /api/db/pieza/:id/estado — actualizar estado de una pieza
+app.patch('/api/db/pieza/:id/estado', async (req, res) => {
+  try {
+    const { estado } = req.body;
+    await db.query('UPDATE piezas SET estado=$1 WHERE id=$2', [estado, req.params.id]);
+    const idx = meili.index('piezas');
+    await idx.updateDocuments([{ id: parseInt(req.params.id), estado }]).catch(() => {});
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
+// POST /api/db/lead — crear lead
+app.post('/api/db/lead', async (req, res) => {
+  try {
+    const { slug, nombre, email, telefono, fuente, notas } = req.body;
+    const c = await db.query('SELECT id FROM clientes WHERE slug=$1', [slug]);
+    if (!c.rows.length) return res.status(404).json({ ok: false, error: 'Cliente no encontrado' });
+    const r = await db.query(
+      'INSERT INTO leads (cliente_id,nombre,email,telefono,fuente,notas) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
+      [c.rows[0].id, nombre, email, telefono, fuente, notas]
+    );
+    res.json({ ok: true, lead: r.rows[0] });
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
+// PATCH /api/db/lead/:id — actualizar estado de lead
+app.patch('/api/db/lead/:id', async (req, res) => {
+  try {
+    const { estado, notas } = req.body;
+    const r = await db.query(
+      'UPDATE leads SET estado=COALESCE($1,estado), notas=COALESCE($2,notas), updated_at=NOW() WHERE id=$3 RETURNING *',
+      [estado, notas, req.params.id]
+    );
+    res.json({ ok: true, lead: r.rows[0] });
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
+// GET /api/db/stats — estadísticas globales
+app.get('/api/db/stats', async (req, res) => {
+  try {
+    const r = await db.query(`
+      SELECT
+        (SELECT COUNT(*) FROM clientes)  AS clientes,
+        (SELECT COUNT(*) FROM parrillas) AS parrillas,
+        (SELECT COUNT(*) FROM piezas)    AS piezas,
+        (SELECT COUNT(*) FROM piezas WHERE estado='5️⃣ Publicado') AS publicadas,
+        (SELECT COUNT(*) FROM leads)     AS leads,
+        (SELECT COUNT(*) FROM skills)    AS skills
+    `);
+    res.json({ ok: true, stats: r.rows[0] });
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
+// ── MeiliSearch — Búsqueda ────────────────────────────────────────────────────
+
+// GET /api/search?q=texto&index=piezas&cliente=slug&limite=20
+app.get('/api/search', async (req, res) => {
+  try {
+    const { q = '', index = 'piezas', cliente, limite = 20 } = req.query;
+    const idx = meili.index(index);
+    const filtros = [];
+    if (cliente && index === 'piezas') {
+      const c = await db.query('SELECT id FROM clientes WHERE slug=$1', [cliente]);
+      if (c.rows.length) filtros.push(`cliente_id = ${c.rows[0].id}`);
+    }
+    const result = await idx.search(q, {
+      limit: parseInt(limite),
+      filter: filtros.length ? filtros.join(' AND ') : undefined,
+      attributesToHighlight: ['titulo','caption_post'],
+      highlightPreTag: '<mark>',
+      highlightPostTag: '</mark>'
+    });
+    res.json({ ok: true, hits: result.hits, total: result.estimatedTotalHits, query: q });
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
+});
+
+// POST /api/search/reindex — re-indexar todo en MeiliSearch
+app.post('/api/search/reindex', async (req, res) => {
+  try {
+    const piezas = await db.query('SELECT * FROM piezas');
+    const clientes = await db.query('SELECT * FROM clientes');
+    await meili.index('piezas').addDocuments(piezas.rows);
+    await meili.index('clientes').addDocuments(clientes.rows);
+    res.json({ ok: true, piezas: piezas.rows.length, clientes: clientes.rows.length });
+  } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
 });
 
 // ── File watcher ──────────────────────────────────────────────────────────────

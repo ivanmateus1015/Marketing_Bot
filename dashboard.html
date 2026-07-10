@@ -2250,8 +2250,7 @@ Objetivo general del mes (${_od.mesNombre}): ${_od.objetivoGeneral}
    - Hooks y tesis ya usados → prohibido repetir
    - Patrones de carrusel usados → rotar
 
-3. Lee las últimas 2 parrillas en clientes/${slug}/01-contenido/parrillas/:
-   - No repetir ninguna frase, concepto ni estructura ya usada
+3. NO abrir parrillas JSON anteriores — el _historial.md ya documenta hooks, keywords y tesis usadas. Leer los JSON multiplica los tokens sin aportar información nueva.
 
 ---
 
@@ -2319,6 +2318,34 @@ MAL: "Casa Calera — proyecto terminado"
 4. Hay palabras de relleno? Eliminar.
 5. ¿El caption promete contenido futuro ("el próximo video")? Solo se permite si esa pieza EXISTE en esta misma parrilla, y la promesa debe decir cuándo llega ("este mes en esta serie"). Prometer y no entregar entrena a la audiencia a ignorar tus promesas.
 
+### script_grabacion → SOLO REELS — script teleprompter (OBLIGATORIO)
+Campo OBLIGATORIO en todos los Reels. Es exactamente lo que el cliente lee frente a la cámara — listo para aprobar y grabar sin editar.
+
+REGLAS:
+- Primera persona siempre: "Llevo años viendo...", "Lo que hago es...", "Si tu piel..."
+- Lenguaje HABLADO, no escrito: frases cortas, pausas naturales — como se habla, no como se escribe
+- Acotaciones entre corchetes para actitud y producción:
+  [Mirar directo a cámara] · [Sonreír, tono cálido] · [Mostrar el producto] · [Pausa 2s] · [Bajar la voz, tono íntimo]
+- GANCHO [0-3s]: la primera frase más impactante del video — la que detiene el scroll
+- DESARROLLO: máx 4-5 frases. Cada frase en su propia línea para facilitar la lectura en cámara
+- CTA: lo que se dice en voz alta — debe sonar natural, nunca publicitario
+- Duración objetivo: 30-45 segundos de narración. Declarar al final: "⏱ ~[N]s"
+
+FORMATO OBLIGATORIO DE SALIDA:
+🎬 GANCHO [0-3s]
+"[texto exacto]"
+[acotación]
+
+📢 DESARROLLO
+"[frase 1]"
+"[frase 2]"
+[acotación cuando suma]
+"[frase 3]"
+
+🎯 CTA
+"[texto exacto del llamado a la acción]"
+⏱ ~[N]s
+
 ---
 
 ## PASO 4 — REGLAS DE CARRUSEL (slides variables)
@@ -2383,7 +2410,8 @@ Sin guia_produccion. Sin banco_material. Solo estos campos.
       "objetivo": "<UN solo objetivo: Awareness | Engagement | Trust | Lead Gen | Conversión>",
       "material": "<Proyecto real + momento específico + por qué prueba el claim. Flags ⚠ cuando aplique (archivo real / validar con cliente + plan B / consentimiento)>",
       "hook_primer_frame": "<Reel: 0-1.5s sin texto, qué aparece. Carrusel: composición exacta slide 1>",
-      "narracion_off": "<Reels: guión 0s:[acción] | 3s:'frase [pausa]' | cierre:'CTA con urgencia real'. Carrusel: N/A>",
+      "narracion_off": "<Reels: descripción visual frame a frame — 0s:[qué aparece en pantalla] | 3s:[acción visual] | cierre:[acción visual de cierre]. Carrusel: N/A>",
+      "script_grabacion": "<SOLO REELS — OBLIGATORIO. Script teleprompter en primera persona listo para grabar:\n🎬 GANCHO [0-3s]\n'[texto exacto — máx 10 palabras]'\n[acotación de actitud]\n\n📢 DESARROLLO\n'[frase 1]'\n'[frase 2]'\n[acotación]\n'[frase 3]'\n\n🎯 CTA\n'[texto exacto]'\n⏱ ~[N]s\nCarrusel: N/A>",
       "copy_slides": "<Carruseles: N slides + por qué + S1[Gancho]·apoyo | S2... | S_final[CTA]keyword+urgencia. Reels: N/A>",
       "caption_post": "<Reel máx 60 pal. Carrusel máx 50 pal. Línea1=hook · Líneas2-3=prueba · Línea4=diferenciador · Línea5=CTA>",
       "cta_keyword": "<Acción + beneficio + urgencia REAL — ver PASO 5>",
@@ -6693,7 +6721,7 @@ async function abrirDetalleHistorial(slug, archivo, tipo) {
   if (!archivo || archivo === '—' || !archivo.endsWith('.json')) return;
   // El historial puede guardar "parrillas/nombre.json" — extraer solo el filename
   const nombreArchivo = archivo.split('/').pop();
-  const esParrilla = (archivo.includes('parrillas/') || tipo?.startsWith('parrilla'));
+  const esParrilla = (archivo.includes('parrillas/') || tipo?.toLowerCase().startsWith('parrilla'));
   const modal = document.getElementById('detailModal');
   document.getElementById('dmTitle').textContent    = nombreArchivo;
   document.getElementById('dmSubtitle').textContent = 'Cargando…';
@@ -6753,65 +6781,74 @@ async function abrirDetalleHistorial(slug, archivo, tipo) {
       <span style="margin-left:auto;font-size:11px;color:var(--text2)">${meta.version || ''}</span>`;
 
     // Tabla de piezas
+    const PILAR_COLORS = {
+      'Filosofía': '#4a7c59',
+      'Educación': '#1a5276',
+      'Leticia': '#6b3a7d',
+      'Resultados': '#7d3a1e',
+    };
+    const pillarBadge = pilar => {
+      const key = Object.keys(PILAR_COLORS).find(k => (pilar||'').includes(k)) || '';
+      const bg  = key ? PILAR_COLORS[key] : '#333';
+      const short = (pilar||'—').split(' — ')[0];
+      return `<span style="padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;background:${bg}22;color:${bg || 'var(--text2)'};border:1px solid ${bg}44">${short}</span>`;
+    };
+    const fmtBadge = fmt => {
+      const f = (fmt||'').toLowerCase();
+      const bg = f.includes('reel') ? '#1A2550' : f.includes('carrusel') ? '#2C3E6B' : '#2E5930';
+      const emoji = f.includes('reel') ? '🎬' : f.includes('carrusel') ? '🖼️' : '📷';
+      return `<span style="padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;background:${bg};color:#fff">${emoji} ${fmt||'—'}</span>`;
+    };
+
     const tbRows = piezas.map(p => {
       const e    = p.estado || '—';
       const eCol = e.includes('Publicado') || e.includes('✅') ? '#81c784'
                  : e.includes('producción') || e.includes('produccion') ? '#ffc107'
                  : 'var(--text2)';
-      const qaSum = p.auto_qa ? p.auto_qa.split('·')[0].trim() : '—';
       const tituloEsc = (p.titulo || '—').replace(/"/g, '&quot;');
       return `<tr style="border-bottom:1px solid var(--border)">
-        <td style="padding:7px 8px;font-size:13px;font-weight:700;color:var(--gold);width:28px;text-align:center">${p.numero}</td>
+        <td style="padding:7px 8px;font-size:13px;font-weight:700;color:var(--gold);width:24px;text-align:center">${p.numero}</td>
         <td style="padding:7px 8px;font-size:11px;white-space:nowrap;color:var(--text2)">${p.fecha || '—'}</td>
-        <td style="padding:7px 8px;font-size:11px;white-space:nowrap">${p.formato || '—'}</td>
-        <td style="padding:7px 8px;font-size:12px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${tituloEsc}">${p.titulo || '—'}</td>
-        <td style="padding:7px 8px;font-size:11px;white-space:nowrap;color:var(--text2)">${p.angulo || '—'}</td>
+        <td style="padding:7px 8px">${fmtBadge(p.formato)}</td>
+        <td style="padding:7px 8px">${pillarBadge(p.pilar)}</td>
+        <td style="padding:7px 8px;font-size:12px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${tituloEsc}">${p.titulo || '—'}</td>
         <td style="padding:7px 8px;font-size:11px;white-space:nowrap;color:var(--text2)">${p.objetivo || '—'}</td>
         <td style="padding:7px 8px;font-size:11px;color:${eCol};white-space:nowrap">${e}</td>
-        <td style="padding:7px 8px;font-size:10px;color:var(--text2)">${qaSum}</td>
       </tr>`;
     }).join('');
 
-    // Tabla de guía (resumen compacto)
-    const guiaRows = guia.map(g => `<tr style="border-bottom:1px solid var(--border)">
-      <td style="padding:6px 8px;font-size:11px;font-weight:700;color:var(--gold);width:28px;text-align:center">${g.numero}</td>
-      <td style="padding:6px 8px;font-size:11px">${g.pieza || '—'}</td>
-      <td style="padding:6px 8px;font-size:11px;color:var(--text2)">${g.specs_tecnicas || '—'}</td>
-      <td style="padding:6px 8px;font-size:11px">
-        <span style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:${g.prioridad==='ALTA'?'rgba(244,67,54,0.15);color:#ef5350':g.prioridad==='MEDIA'?'rgba(255,193,7,0.12);color:#ffc107':'rgba(255,255,255,0.06);color:var(--text2)'}">${g.prioridad || '—'}</span>
-      </td>
-    </tr>`).join('');
+    // Botón Excel grande al pie del modal
+    const excelFooterBtn = esParrilla && serverOnline
+      ? `<div style="margin-top:24px;padding:16px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.25);border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--gold)">📊 Exportar parrilla a Excel</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:2px">${piezas.length} piezas · 16 columnas · formato profesional</div>
+          </div>
+          <a href="/api/cliente/${slug}/parrilla-excel?archivo=${encodeURIComponent(nombreArchivo)}"
+             download="${nombreArchivo.replace('.json','.xlsx')}"
+             style="display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:#0B0F19;font-weight:700;font-size:13px;padding:10px 20px;border-radius:8px;text-decoration:none;white-space:nowrap;flex-shrink:0">
+            ⬇️ Descargar Excel
+          </a>
+        </div>`
+      : '';
 
     document.getElementById('dmBody').innerHTML = `
       <div style="margin-top:16px">
-        <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">Piezas</div>
+        <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">Piezas del mes</div>
         <table style="width:100%;border-collapse:collapse">
           <thead><tr style="border-bottom:2px solid var(--border)">
             <th style="padding:6px 8px;text-align:left;font-size:10px;color:var(--text2);font-weight:600">#</th>
             <th style="padding:6px 8px;text-align:left;font-size:10px;color:var(--text2);font-weight:600">Fecha</th>
             <th style="padding:6px 8px;text-align:left;font-size:10px;color:var(--text2);font-weight:600">Formato</th>
+            <th style="padding:6px 8px;text-align:left;font-size:10px;color:var(--text2);font-weight:600">Pilar</th>
             <th style="padding:6px 8px;text-align:left;font-size:10px;color:var(--text2);font-weight:600">Título / Concepto</th>
-            <th style="padding:6px 8px;text-align:left;font-size:10px;color:var(--text2);font-weight:600">Ángulo</th>
             <th style="padding:6px 8px;text-align:left;font-size:10px;color:var(--text2);font-weight:600">Objetivo</th>
             <th style="padding:6px 8px;text-align:left;font-size:10px;color:var(--text2);font-weight:600">Estado</th>
-            <th style="padding:6px 8px;text-align:left;font-size:10px;color:var(--text2);font-weight:600">Auto-QA</th>
           </tr></thead>
           <tbody>${tbRows}</tbody>
         </table>
       </div>
-      ${guia.length > 0 ? `
-      <div style="margin-top:24px">
-        <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">Guía de Producción</div>
-        <table style="width:100%;border-collapse:collapse">
-          <thead><tr style="border-bottom:2px solid var(--border)">
-            <th style="padding:6px 8px;text-align:left;font-size:10px;color:var(--text2);font-weight:600">#</th>
-            <th style="padding:6px 8px;text-align:left;font-size:10px;color:var(--text2);font-weight:600">Pieza</th>
-            <th style="padding:6px 8px;text-align:left;font-size:10px;color:var(--text2);font-weight:600">Specs técnicas</th>
-            <th style="padding:6px 8px;text-align:left;font-size:10px;color:var(--text2);font-weight:600">Prioridad</th>
-          </tr></thead>
-          <tbody>${guiaRows}</tbody>
-        </table>
-      </div>` : ''}`;
+      ${excelFooterBtn}`;
 
   } catch (e) {
     document.getElementById('dmSubtitle').textContent = '';

@@ -446,12 +446,58 @@ Agregar a la lista de validación de auto_qa:
 - Excepción: cliente Draken VIP puede usar inglés americano si el contexto es mercado USA
 - Los hashtags van siempre en el idioma del mercado objetivo del cliente
 
-### Columnas que mapean al Excel de referencia
-| Campo JSON | Hoja Excel | Columnas |
-|-----------|-----------|---------|
-| `piezas[]` | Parrilla | `#` · `FECHA` · `DÍA` · `FORMATO` · `TÍTULO` · `CAPTION POST` · `COPY SLIDES` · `MATERIAL` · `HOOK` · `CTA` · `KEYWORD DM` · `HASHTAGS` · `OBJETIVO` · `NIVEL` · `HORA` · `ESTADO` |
-| `guia_produccion[]` | Guía de Producción | `#` · `PIEZA` · `BRIEF DISEÑADOR` · `TIPO EDICIÓN` · `SPECS TÉCNICAS` · `MÚSICA/MOOD` · `PRIORIDAD` |
-| `banco_material[]` | Banco de Material | `#` · `DESCRIPCIÓN` · `TIPO` · `USO SUGERIDO` · `CALIDAD` · `PIEZA(S)` · `ESTADO` |
+### Columnas que mapean al Excel de referencia (formato v2 — hoja única `📋 Parrilla + Script`)
+
+| Col | Campo JSON | Header Excel | Notas |
+|-----|-----------|--------------|-------|
+| 1 | `numero` | `#` | Navy oscuro, blanco centrado |
+| 2 | `fecha` | `FECHA / DATE` | |
+| 3 | `dia` | `DÍA / DAY` | |
+| 4 | `formato` | `FORMATO` | Badge de color: Reel=navy · Carrusel=navy medio |
+| 5 | `titulo` | `TÍTULO / CONCEPT` | |
+| 6 | `caption_es` o `caption_post` | `🇪🇸 CAPTION ESPAÑOL (PAS)` | Fondo crema cálida `#FFFAF0` |
+| 7 | `caption_en` | `🇺🇸 CAPTION ENGLISH (PAS)` | Fondo azul suave `#F0F4FF` — vacío si cliente monolingüe |
+| 8 | `hook` o `hook_primer_frame` | `🪝 HOOK ES · EN` | Fondo rosado · texto rojo oscuro |
+| 9 | `material` | `📁 MATERIAL` | Fondo azul info suave |
+| 10 | `script_es` | `📽️ ON-SCREEN SCRIPT ES` | Fondo casi negro `#0D1117` · texto blanco |
+| 11 | `script_en` | `📽️ ON-SCREEN SCRIPT EN` | Fondo navy `#0F1A2E` · texto blanco |
+| 12 | `cta_es` / `cta` + `cta_en` | `📣 CTA ES · EN` | Fondo rojo oscuro · texto blanco |
+| 13 | `hashtags` | `#️⃣ HASHTAGS` | |
+| 14 | `objetivo` | `🎯 OBJETIVO` | Fondo navy · texto blanco |
+| 15 | `estado` | `STATUS` | Verde = Publicado · Azul = Aprobado |
+
+### Campos bilingües del schema (para clientes con F2 = bilingüe)
+
+Además de los campos base, usar estos campos extra en el JSON de piezas:
+- `caption_en` — Caption en inglés siguiendo el mismo framework PAS
+- `script_en` — On-screen script EN frame a frame (solo Reels bilingües)
+- `cta_en` — CTA en inglés (ej: "DM 'BOOK' to reserve your experience")
+- `hook_en` — Hook en inglés (opcional — puede ir dentro de `hook` con emoji de bandera)
+
+Para Reels, el `script_es` debe seguir el formato frame a frame del ejemplo:
+```
+── REEL #N · [TÍTULO EN CAPS] · ~XX seg ──
+🇪🇸 ESPAÑOL
+
+[F1 · 0–2s]
+VISUAL: [descripción visual]
+TEXTO: "[hook ≤7 palabras]"
+POSICIÓN: [top/bottom/center]
+
+[F2 · 2–5s]
+VISUAL: [descripción]
+TEXTO: "[texto overlay]"
+```
+
+Para Carruseles, `script_es` debe ser:
+```
+— CARRUSEL · No aplica on-screen script —
+
+GUÍA DE SLIDES:
+S1 [Gancho]: "[texto principal]" · "[texto apoyo]"
+S2 [Desarrollo]: ...
+SN [CTA]: ...
+```
 
 ---
 
