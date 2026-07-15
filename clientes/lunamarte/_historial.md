@@ -9,7 +9,9 @@
 ## Keywords DM activas (NO repetir en próxima parrilla sin nuevo flujo de automatización)
 - `PLAN` — Lead Gen diagnóstico/consulta personalizada (P5, P6, P11) [parrilla 2026-07-07-22-16 — inactiva]
 - `RITUAL` — Conversión tratamiento concreto / agenda agosto (P9, P10, P12) [parrilla 2026-07-07-22-16 — inactiva]
-- `AGOSTO` — Lead Gen + Conversión cupos agosto 2026 (P5, P6, P9, P10, P11, P12) [parrilla activa 2026-07-07-1203]
+- `AGOSTO` — Lead Gen + Conversión cupos agosto 2026 (P5, P6, P9, P10, P11, P12) [parrilla 2026-07-07-1203 — reemplazada]
+- `VERANO` — Lead Gen diagnóstico estacional / plan solar Naples FL (P4, P9) [parrilla activa 2026-07-10-1211]
+- `CITA` — Conversión agenda de consulta agosto (P11, P12) [parrilla activa 2026-07-10-1211]
 
 ## Hooks usados (NO repetir como primera línea)
 
@@ -88,4 +90,5 @@
 | Fecha | Tipo | Archivo | Skills aplicadas | Ángulos | Score |
 |-------|------|---------|------------------|---------|-------|
 | 2026-07-07 | Parrilla 4 semanas (12 piezas) | parrilla-2026-07-07-22-16.json / .xlsx | copywriting · marketing-psychology · social-content · image · content-strategy · marketing-ideas · copy-editing | Educativo×4 · Caso de éxito×2 · Detrás de cámaras×2 · Lifestyle×1 · Aspiracional×1 · Promocional×2 | — (eliminada — reemplazada) |
-| 2026-07-07 | Parrilla 4 semanas (12 piezas) — v2 con script_grabacion + caption_en + pilar | parrilla-2026-07-07-1203.json / .xlsx | copywriting · marketing-psychology · social-content · content-strategy · copy-editing | Educativo×3 · Detrás de cámaras×2 · Confianza/filosofía×3 · Caso de éxito×2 · Autobiográfico×1 · Conversión directa×1 | — (pendiente revisión Leticia) |
+| 2026-07-07 | Parrilla 4 semanas (12 piezas) — v2 script_grabacion + caption_en + pilar | parrilla-2026-07-07-1203.json / .xlsx | copywriting · marketing-psychology · social-content · content-strategy · copy-editing | Educativo×3 · Detrás de cámaras×2 · Confianza/filosofía×3 · Caso de éxito×2 · Autobiográfico×1 · Conversión directa×1 | — (reemplazada) |
+| 2026-07-10 | Parrilla 4 semanas (12 piezas) — tema transversal Protección Solar · serie Un mito una semana · script_grabacion · caption_en | parrilla-2026-07-10-1211.json / .xlsx | copywriting · marketing-psychology · social-content · image · content-strategy · copy-editing | Educativo×3 · Trust/Serie×3 · Lead Gen filosofía×2 · Resultados×2 · Conversión×2 | — (pendiente revisión Leticia) |
