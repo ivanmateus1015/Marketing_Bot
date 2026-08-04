@@ -1,0 +1,82 @@
+{
+  "mes_activo": "2026-07",
+  "meses": {
+    "2026-07": {
+      "mes": "2026-07",
+      "north_star_metric": "leads",
+      "objetivo_macro": "Convertir el contenido de proceso en prueba comercial: llevar Aurora de 4 a 9 cafés aliados y sostener el flujo de encargos de la tienda, usando la fermentación declarada como diferenciador visible en cada pieza.",
+      "objetivos": {
+        "seguidores": 600,
+        "leads": 25,
+        "asesorias": 9,
+        "tasa_guardados": 8,
+        "engagement_rate": 5,
+        "stories_vistas": 450
+      },
+      "resultados_reales": {
+        "seguidores": 517,
+        "leads": 27,
+        "asesorias": 7,
+        "tasa_guardados": 9,
+        "engagement_rate": 5.4,
+        "stories_vistas": 388
+      },
+      "mix_contenido": {
+        "Awareness": 45,
+        "Conversion": 35,
+        "Educacion": 20
+      },
+      "semanas": [
+        {
+          "numero": 1,
+          "fechas": "1–5 Jul",
+          "foco": "Fermentación declarada — por qué 24 horas cambian el pan",
+          "kpis": "Guardados · Alcance",
+          "cta_semana": "Guardar + compartir",
+          "exito_si": "3 piezas superan 200 guardados y el alcance sube 20% vs junio",
+          "resultados_reales": {
+            "guardados": 241,
+            "alcance": 8600
+          }
+        },
+        {
+          "numero": 2,
+          "fechas": "6–12 Jul",
+          "foco": "Detrás del obrador — la madrugada del equipo",
+          "kpis": "Engagement · Stories vistas",
+          "cta_semana": "Responder la encuesta de stories",
+          "exito_si": "Engagement por encima de 5% y 400 vistas promedio en stories",
+          "resultados_reales": {
+            "engagement": 5.8,
+            "stories_vistas": 412
+          }
+        },
+        {
+          "numero": 3,
+          "fechas": "13–19 Jul",
+          "foco": "Canal B2B — Aurora como proveedor de cafés de especialidad",
+          "kpis": "Leads B2B · DM keyword ALIADOS",
+          "cta_semana": "DM 'ALIADOS'",
+          "exito_si": "12 DM con la keyword ALIADOS y 4 reuniones agendadas",
+          "resultados_reales": {
+            "leads_b2b": 14,
+            "reuniones": 4
+          }
+        },
+        {
+          "numero": 4,
+          "fechas": "20–31 Jul",
+          "foco": "Encargos y celebraciones — cerrar agosto con agenda llena",
+          "kpis": "Leads encargo · Cotizaciones",
+          "cta_semana": "DM 'ENCARGO'",
+          "exito_si": "13 leads de encargo y 6 cotizaciones enviadas",
+          "resultados_reales": {
+            "leads_encargo": 13,
+            "cotizaciones": 5
+          }
+        }
+      ],
+      "notas": "Mes de prueba del sistema. Los leads superaron la meta (27/25) gracias a la semana 3 de B2B; las asesorías quedaron cortas (7/9) porque dos cafés aplazaron la reunión a agosto."
+    }
+  }
+}

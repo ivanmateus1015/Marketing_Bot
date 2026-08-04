@@ -1,0 +1,202 @@
+{
+  "meses": {
+    "2026-07": {
+      "piezas": [
+        {
+          "id": 1,
+          "fecha": "2026-07-01",
+          "dia": "Mié",
+          "semana": 1,
+          "formato": "Reel",
+          "objetivo": "Awareness",
+          "estado": "Publicado",
+          "titulo": "24 horas de fermentación en 30 segundos",
+          "updated": "2026-07-29T17:04:28.281Z"
+        },
+        {
+          "id": 2,
+          "fecha": "2026-07-03",
+          "dia": "Vie",
+          "semana": 1,
+          "formato": "Carrusel",
+          "objetivo": "Educación",
+          "estado": "Publicado",
+          "titulo": "Por qué tu pan del supermercado sabe a nada",
+          "updated": "2026-07-29T17:04:28.281Z"
+        },
+        {
+          "id": 3,
+          "fecha": "2026-07-05",
+          "dia": "Dom",
+          "semana": 1,
+          "formato": "Foto",
+          "objetivo": "Engagement",
+          "estado": "Publicado",
+          "titulo": "Campesino o centeno: ¿cuál va en tu mesa del domingo?",
+          "updated": "2026-07-29T17:04:28.281Z"
+        },
+        {
+          "id": 4,
+          "fecha": "2026-07-08",
+          "dia": "Mié",
+          "semana": 2,
+          "formato": "Reel",
+          "objetivo": "Awareness",
+          "estado": "Publicado",
+          "titulo": "Las 4:10 a.m. en el obrador de Usaquén",
+          "updated": "2026-07-29T17:04:28.281Z"
+        },
+        {
+          "id": 5,
+          "fecha": "2026-07-10",
+          "dia": "Vie",
+          "semana": 2,
+          "formato": "Carrusel",
+          "objetivo": "Trust",
+          "estado": "Publicado",
+          "titulo": "El molino que nos vende la harina tiene nombre",
+          "updated": "2026-07-29T17:04:28.281Z"
+        },
+        {
+          "id": 6,
+          "fecha": "2026-07-12",
+          "dia": "Dom",
+          "semana": 2,
+          "formato": "Reel",
+          "objetivo": "Engagement",
+          "estado": "Publicado",
+          "titulo": "Cómo se abre un croissant bien laminado",
+          "updated": "2026-07-29T17:04:28.281Z"
+        },
+        {
+          "id": 7,
+          "fecha": "2026-07-15",
+          "dia": "Mié",
+          "semana": 3,
+          "formato": "Carrusel",
+          "objetivo": "Lead Gen",
+          "estado": "Programado",
+          "titulo": "Lo que un café de especialidad debe exigirle a su panadero",
+          "updated": "2026-07-29T17:04:28.281Z"
+        },
+        {
+          "id": 8,
+          "fecha": "2026-07-17",
+          "dia": "Vie",
+          "semana": 3,
+          "formato": "Reel",
+          "objetivo": "Lead Gen",
+          "estado": "Programado",
+          "titulo": "Entregamos a las 5:40 a.m. — así es la ruta",
+          "updated": "2026-07-29T17:04:28.281Z"
+        },
+        {
+          "id": 9,
+          "fecha": "2026-07-19",
+          "dia": "Dom",
+          "semana": 3,
+          "formato": "Foto",
+          "objetivo": "Trust",
+          "estado": "Aprobación cliente",
+          "titulo": "Tres cafés de Bogotá ya sirven nuestro pan",
+          "updated": "2026-07-29T17:04:28.281Z"
+        },
+        {
+          "id": 10,
+          "fecha": "2026-07-22",
+          "dia": "Mié",
+          "semana": 4,
+          "formato": "Carrusel",
+          "objetivo": "Conversión",
+          "estado": "Producción",
+          "titulo": "Checklist antes de encargar la torta de un evento",
+          "updated": "2026-07-29T17:04:28.281Z"
+        },
+        {
+          "id": 11,
+          "fecha": "2026-07-25",
+          "dia": "Sáb",
+          "semana": 4,
+          "formato": "Reel",
+          "objetivo": "Conversión",
+          "estado": "Guion",
+          "titulo": "La caja Aurora del fin de semana, por dentro",
+          "updated": "2026-08-03T17:22:44.699Z"
+        },
+        {
+          "id": 12,
+          "fecha": "2026-07-29",
+          "dia": "Mié",
+          "semana": 4,
+          "formato": "Carrusel",
+          "objetivo": "Awareness",
+          "estado": "Guion",
+          "titulo": "Ocho panes, ocho tiempos de fermentación",
+          "updated": "2026-07-29T17:04:28.281Z"
+        }
+      ],
+      "stories": [
+        {
+          "id": 1,
+          "dia": "Jue 2 Jul",
+          "semana": 1,
+          "tipo": "Cadena 5 slides",
+          "objetivo": "Educativa",
+          "estado": "Publicado",
+          "concepto": "Qué es la masa madre, explicado sin tecnicismos",
+          "updated": "2026-07-29T17:04:28.281Z"
+        },
+        {
+          "id": 2,
+          "dia": "Mar 7 Jul",
+          "semana": 2,
+          "tipo": "Cadena 5 slides",
+          "objetivo": "Behind the scenes",
+          "estado": "Publicado",
+          "concepto": "La madrugada de Andrés, panadero jefe",
+          "updated": "2026-07-29T17:04:28.281Z"
+        },
+        {
+          "id": 3,
+          "dia": "Jue 9 Jul",
+          "semana": 2,
+          "tipo": "Cadena 3 slides",
+          "objetivo": "Engagement",
+          "estado": "Publicado",
+          "concepto": "Encuesta: ¿en qué etapa de tu antojo estás?",
+          "updated": "2026-07-29T17:04:28.281Z"
+        },
+        {
+          "id": 4,
+          "dia": "Mar 14 Jul",
+          "semana": 3,
+          "tipo": "Cadena 5 slides",
+          "objetivo": "Conversión",
+          "estado": "Programado",
+          "concepto": "Cómo funciona ser café aliado de Aurora",
+          "updated": "2026-07-29T17:04:28.281Z"
+        },
+        {
+          "id": 5,
+          "dia": "Jue 23 Jul",
+          "semana": 4,
+          "tipo": "Cadena 5 slides",
+          "objetivo": "Teaser",
+          "estado": "Aprobación cliente",
+          "concepto": "Algo nuevo entra al horno en agosto",
+          "updated": "2026-07-29T17:04:28.281Z"
+        },
+        {
+          "id": 6,
+          "dia": "Mar 28 Jul",
+          "semana": 4,
+          "tipo": "Cadena 5 slides",
+          "objetivo": "Conversión",
+          "estado": "Guion",
+          "concepto": "Encargos de agosto: cómo se reserva",
+          "updated": "2026-07-29T17:04:28.281Z"
+        }
+      ]
+    }
+  }
+}

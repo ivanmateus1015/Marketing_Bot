@@ -526,8 +526,37 @@ tbody td { padding:8px 14px; vertical-align:middle; }
   <div class="server-dot" id="serverDot"></div>
   <span id="serverLbl">offline</span>
   <div class="h-sep"></div>
+  <button class="btn btn-ghost btn-sm" onclick="abrirNuevoCliente()">➕ Nuevo cliente</button>
   <button class="btn btn-ghost btn-sm" onclick="doRefresh()">↺ Actualizar</button>
 </header>
+
+<!-- MODAL NUEVO CLIENTE -->
+<div id="nuevoClienteModal" style="display:none;position:fixed;inset:0;background:rgba(10,31,68,.55);z-index:9998;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:14px;max-width:460px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <h3 style="margin:0 0 4px;font-size:18px;color:#0A1F44">➕ Nuevo cliente</h3>
+    <p style="margin:0 0 18px;font-size:12.5px;color:#6b7280">Crea la carpeta, el identity semilla y los archivos de objetivos, estados, leads y redes.</p>
+    <div style="display:flex;flex-direction:column;gap:11px">
+      <label style="font-size:12px;font-weight:600;color:#374151">Nombre / razón social *
+        <input id="nc-nombre" oninput="_ncSlugAuto()" placeholder="Aurora Bakehouse SAS" style="width:100%;margin-top:4px;padding:9px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;font-family:inherit"></label>
+      <label style="font-size:12px;font-weight:600;color:#374151">Slug (carpeta) *
+        <input id="nc-slug" placeholder="aurora-bakehouse" style="width:100%;margin-top:4px;padding:9px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;font-family:inherit"></label>
+      <label style="font-size:12px;font-weight:600;color:#374151">Industria
+        <input id="nc-industria" placeholder="Panadería artesanal" style="width:100%;margin-top:4px;padding:9px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;font-family:inherit"></label>
+      <label style="font-size:12px;font-weight:600;color:#374151">Mercado / ciudad
+        <input id="nc-mercado" placeholder="Bogotá, Colombia" style="width:100%;margin-top:4px;padding:9px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;font-family:inherit"></label>
+      <label style="font-size:12px;font-weight:600;color:#374151">Website
+        <input id="nc-web" placeholder="https://..." style="width:100%;margin-top:4px;padding:9px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;font-family:inherit"></label>
+      <label style="font-size:12px;font-weight:600;color:#374151">Plan
+        <select id="nc-plan" style="width:100%;margin-top:4px;padding:9px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;font-family:inherit">
+          <option>Plan Estándar</option><option>Plan Deluxe</option><option>Casa (interno)</option></select></label>
+    </div>
+    <div id="nc-msg" style="font-size:12.5px;margin-top:12px;min-height:18px"></div>
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <button class="btn btn-outline btn-sm" style="flex:1" onclick="cerrarNuevoCliente()">Cancelar</button>
+      <button class="btn btn-gold btn-sm" style="flex:1" onclick="crearNuevoCliente()">Crear cliente</button>
+    </div>
+  </div>
+</div>
 
 <!-- PAGE WRAP -->
 <div id="pageWrap" style="display:none">
@@ -892,22 +921,105 @@ function renderCurrentTab() {
 // ══════════════════════════════════════════════════════════════════════════════
 // RESUMEN
 // ══════════════════════════════════════════════════════════════════════════════
-function renderResumen() {
+// El resumen consolida las otras 11 pestañas. Antes leía solo el snapshot estático
+// de data.js, así que nunca reflejaba producción, leads ni redes.
+async function renderResumen() {
   if (!activeClient) return;
+  const slug = activeClient.slug;
+  const panel = document.getElementById('tab-resumen');
+  panel.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text2)">Cargando resumen…</div>';
+
+  let R = null;
+  if (serverOnline) {
+    try {
+      const d = await fetch(`/api/cliente/${slug}/resumen`).then(r => r.json());
+      if (d.ok) R = d;
+    } catch {}
+  }
+
   const c = activeClient;
-  const nombre = clientNombre(c);
-  const score = c.score_identity ?? c.score ?? 0;
-  const llenos = c.campos_llenos ?? 0;
-  const total  = (c.campos_llenos ?? 0) + (c.campos_pendientes ?? 0) || 47;
-  const piezas = c.total_piezas ?? c.historial?.total ?? 0;
-  const archivos = c.archivos?.length ?? 0;
-  const ultima = c.ultima_actividad ?? c.historial?.ultimaActividad ?? '—';
-  const tono = (c.tono || '—').substring(0, 80);
-  const ciudad = c.ciudad || c.industria || '—';
-  const tagline = c.tagline || '';
-  const angulos = c.angulos_usados || c.historial?.angulos || {};
+  const nombre   = R?.identity?.nombre   || clientNombre(c);
+  const score    = R?.identity?.score    ?? c.score_identity ?? c.score ?? 0;
+  const llenos   = R?.identity?.campos_llenos ?? c.campos_llenos ?? 0;
+  const total    = (llenos + (R?.identity?.campos_pendientes ?? c.campos_pendientes ?? 0)) || 47;
+  const piezas   = R?.historial?.total   ?? c.total_piezas ?? 0;
+  const archivos = R?.archivos           ?? (c.archivos?.length ?? 0);
+  const ultima   = R?.historial?.ultima_actividad || c.ultima_actividad || '—';
+  const tono     = (R?.identity?.tono || c.tono || '—').substring(0, 80);
+  const ciudad   = R?.identity?.industria || c.ciudad || '—';
+  const tagline  = R?.identity?.tagline  || '';
+  const angulos  = R?.historial?.angulos || c.angulos_usados || {};
 
   const pct = total > 0 ? Math.round((llenos / total) * 100) : 0;
+
+  // ── Bloques que vienen de las otras pestañas ────────────────────────────────
+  const prod = R?.produccion;
+  const EST_COLOR = { 'Guion':'#718096', 'Producción':'#9c4221', 'Aprobación cliente':'#7b5800', 'Programado':'#276749', 'Publicado':'#1a365d' };
+  const prodHtml = !prod || !prod.total ? '' : `
+    <div class="card">
+      <div class="card-title">📁 Producción — ${prod.mes || 'mes activo'}
+        <span style="font-weight:400;font-size:11px;color:var(--text2)">· ${prod.piezas} piezas · ${prod.stories} stories</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+        ${Object.entries(prod.por_estado).map(([e, n]) => `
+          <div style="flex:1;min-width:92px;text-align:center;border-left:3px solid ${EST_COLOR[e]||'#718096'};background:var(--bg2);border-radius:6px;padding:8px 6px">
+            <div style="font-size:19px;font-weight:800;color:${EST_COLOR[e]||'#718096'}">${n}</div>
+            <div style="font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:.4px">${e}</div>
+          </div>`).join('')}
+      </div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:4px">${prod.pct_publicado}% publicado</div>
+      <div class="score-progress"><div class="score-fill" style="width:${prod.pct_publicado}%"></div></div>
+      <button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="setTab('material')">Ver tablero →</button>
+    </div>`;
+
+  const kpis = R?.objetivos?.kpis || [];
+  const KPI_LBL = { seguidores:'👥 Seguidores', leads:'🎯 Leads', asesorias:'📞 Asesorías', tasa_guardados:'🔖 Guardados', engagement_rate:'📈 Engagement', stories_vistas:'👁 Stories' };
+  const objHtml = !kpis.length ? '' : `
+    <div class="card">
+      <div class="card-title">🎯 Objetivos — ${R.objetivos.mes || ''}</div>
+      ${R.objetivos.objetivo_macro ? `<div style="background:var(--navy);color:#fff;border-radius:8px;padding:10px 14px;font-size:12px;line-height:1.5;margin-bottom:12px">${R.objetivos.objetivo_macro}</div>` : ''}
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${kpis.map(k => {
+          const col = k.pct == null ? '#718096' : k.pct >= 100 ? '#48bb78' : k.pct >= 70 ? '#ecc94b' : '#fc8181';
+          return `<div style="flex:1;min-width:100px;text-align:center;background:var(--bg2);border-radius:6px;padding:8px 6px">
+            <div style="font-size:19px;font-weight:800;color:${col}">${k.real != null ? k.real : '—'}<span style="font-size:11px;color:var(--text2)">/${k.meta}</span></div>
+            <div style="font-size:9px;color:var(--text2)">${KPI_LBL[k.key] || k.key}${k.pct != null ? ` · ${k.pct}%` : ''}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="setTab('objetivos')">Editar objetivos →</button>
+    </div>`;
+
+  const L = R?.leads;
+  const leadsHtml = !L ? '' : `
+    <div class="card">
+      <div class="card-title">👥 Leads</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div style="flex:1;min-width:88px;text-align:center;background:var(--bg2);border-radius:6px;padding:8px">
+          <div style="font-size:19px;font-weight:800;color:var(--navy)">${L.total}</div>
+          <div style="font-size:9px;color:var(--text2)">TOTAL</div></div>
+        <div style="flex:1;min-width:88px;text-align:center;background:var(--bg2);border-radius:6px;padding:8px">
+          <div style="font-size:19px;font-weight:800;color:#166534">${L.convertidos}</div>
+          <div style="font-size:9px;color:var(--text2)">CONVERTIDOS</div></div>
+        <div style="flex:1;min-width:110px;text-align:center;background:var(--bg2);border-radius:6px;padding:8px">
+          <div style="font-size:19px;font-weight:800;color:var(--gold)">$${(L.valor_pipeline||0).toLocaleString('es-CO')}</div>
+          <div style="font-size:9px;color:var(--text2)">PIPELINE</div></div>
+      </div>
+      <button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="setTab('leads')">Ver CRM →</button>
+    </div>`;
+
+  const rs = R?.redes?.stats || [];
+  const redesHtml = !rs.length ? '' : `
+    <div class="card">
+      <div class="card-title">📲 Redes <span style="font-weight:400;font-size:11px;color:var(--text2)">· ${R.redes.snapshots} snapshots</span></div>
+      ${rs.map(s => `
+        <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px">
+          <strong style="min-width:76px">${s.red}</strong>
+          <span>${(s.seguidores||0).toLocaleString('es-CO')} seg.</span>
+          <span style="color:${s.crecimiento >= 0 ? '#166534' : '#dc2626'};font-weight:700">${s.crecimiento >= 0 ? '+' : ''}${s.crecimiento}</span>
+          <span style="margin-left:auto;color:var(--text2)">eng. ${s.engProm != null ? s.engProm + '%' : '—'}</span>
+        </div>`).join('')}
+      <button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="setTab('redes')">Ver redes →</button>
+    </div>`;
 
   const anglEntries = Object.entries(angulos);
   const maxAngl = Math.max(...anglEntries.map(e=>e[1]), 1);
@@ -919,7 +1031,7 @@ function renderResumen() {
           <div class="angle-bar-bg"><div class="angle-bar-fill" style="width:${(v/maxAngl*100).toFixed(0)}%"></div></div>
         </div>`).join('');
 
-  document.getElementById('tab-resumen').innerHTML = `
+  panel.innerHTML = `
 <div class="resumen-grid">
   <div>
     <div class="hero-card">
@@ -961,21 +1073,30 @@ function renderResumen() {
         <div class="stat-box-label">Última actividad</div>
       </div>
     </div>
+    ${objHtml}
+    ${prodHtml}
     <div class="card">
       <div class="card-title">Acciones rápidas</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-gold btn-sm" onclick="setTab('marketing')">🎯 Crear parrilla</button>
         <button class="btn btn-outline btn-sm" onclick="setTab('identity')">🆔 Ver identity</button>
         <button class="btn btn-outline btn-sm" onclick="setTab('material')">📁 Ver material</button>
+        <button class="btn btn-outline btn-sm" onclick="setTab('calendario')">📅 Calendario</button>
         <button class="btn btn-outline btn-sm" onclick="setTab('historial')">📈 Ver historial</button>
+        ${serverOnline ? `<a class="btn btn-outline btn-sm" style="text-decoration:none" href="/api/cliente/${slug}/excel-master">📥 Excel Master</a>` : ''}
       </div>
     </div>
   </div>
   <div>
+    ${leadsHtml}
+    ${redesHtml}
     <div class="card">
       <div class="card-title">Ángulos usados</div>
       ${anglesHtml}
     </div>
+    ${!serverOnline ? `<div class="card" style="border-left:3px solid #fc8181">
+      <div style="font-size:12px;color:var(--text2)">Servidor offline — el resumen muestra solo el snapshot de <code>data.js</code>. Arranca <code>node servidor.js</code> para ver producción, leads y redes.</div>
+    </div>` : ''}
   </div>
 </div>`;
 }
@@ -5253,28 +5374,54 @@ const REDES_GRAPH_VER = 'v23.0';
 
 function redesKey(slug) { return 'tk_redes_' + slug; }
 
+const redesVacio = () => ({
+  ig: { handle:'', igUserId:'', token:'' },
+  fb: { handle:'', pageId:'', token:'' },
+  tt: { handle:'', openId:'', token:'' },
+  snapshots: []
+});
+
+// Estado de redes servido por el backend (clientes/{slug}/redes.json). localStorage
+// queda solo como caché de lectura para cuando el servidor está caído; los tokens
+// ya no viajan al navegador (el backend los enmascara y hace de proxy).
+let _redesCache = { slug: null, data: redesVacio(), stats: [], desdeServidor: false };
+
 function redesState(slug) {
+  if (_redesCache.slug === slug) return _redesCache.data;
   try {
     const raw = localStorage.getItem(redesKey(slug));
-    if (raw) return JSON.parse(raw);
+    if (raw) return { ...redesVacio(), ...JSON.parse(raw) };
   } catch (e) {}
-  return {
-    ig: { handle:'', igUserId:'', token:'' },
-    fb: { handle:'', pageId:'', token:'' },
-    tt: { handle:'', openId:'', token:'' },
-    snapshots: []
-  };
+  return redesVacio();
 }
 
 function redesSaveState(slug, st) {
-  localStorage.setItem(redesKey(slug), JSON.stringify(st));
+  _redesCache = { ..._redesCache, slug, data: st };
+  try { localStorage.setItem(redesKey(slug), JSON.stringify({ ...st, ig:{...st.ig,token:''}, fb:{...st.fb,token:''}, tt:{...st.tt,token:''} })); } catch (e) {}
 }
 
-function renderRedes() {
+async function redesCargar(slug, forzar) {
+  if (!serverOnline) { _redesCache = { slug, data: redesState(slug), stats: [], desdeServidor: false }; return _redesCache; }
+  if (!forzar && _redesCache.slug === slug && _redesCache.desdeServidor) return _redesCache;
+  try {
+    const d = await fetch(`/api/cliente/${slug}/redes`).then(r => r.json());
+    if (d.ok) {
+      _redesCache = { slug, data: { ...redesVacio(), ...d.data }, stats: d.stats || [], desdeServidor: true };
+      try { localStorage.setItem(redesKey(slug), JSON.stringify(d.data)); } catch (e) {}
+      return _redesCache;
+    }
+  } catch {}
+  _redesCache = { slug, data: redesState(slug), stats: [], desdeServidor: false };
+  return _redesCache;
+}
+
+async function renderRedes() {
   if (!activeClient) return;
   const slug = activeClient.slug;
   const nombre = clientNombre(activeClient);
-  const st = redesState(slug);
+  document.getElementById('tab-redes').innerHTML =
+    '<div style="padding:40px;text-align:center;color:var(--text2)">Cargando redes…</div>';
+  const { data: st, desdeServidor } = await redesCargar(slug, true);
 
   const card = (p, color, icon, titulo, campos, nota) => `
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)">
@@ -5299,6 +5446,14 @@ function renderRedes() {
         style="width:100%;margin-top:4px;padding:9px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;font-family:inherit"/>
     </label>`;
 
+  // El servidor nunca devuelve el token: solo marca si ya hay uno guardado.
+  const inpToken = (id, label, tieneToken) => `
+    <label style="font-size:12px;font-weight:600;color:#374151">${label}
+      ${tieneToken ? '<span style="margin-left:6px;font-weight:700;color:#059669;font-size:11px">● guardado en el servidor</span>' : ''}
+      <input id="${id}" type="password" value="" placeholder="${tieneToken ? 'Déjalo vacío para conservar el token actual' : 'EAAG…'}"
+        style="width:100%;margin-top:4px;padding:9px;border:1px solid ${tieneToken ? '#a7f3d0' : '#d1d5db'};border-radius:8px;font-size:13px;font-family:inherit"/>
+    </label>`;
+
   const snapshotsRows = (st.snapshots || []).slice().reverse().map((s, ri) => {
     const realIdx = st.snapshots.length - 1 - ri;
     return `<tr style="border-bottom:1px solid #f0f0f0">
@@ -5308,7 +5463,7 @@ function renderRedes() {
       <td style="padding:8px;font-size:12px;text-align:right">${(s.alcance||0).toLocaleString('es-CO')}</td>
       <td style="padding:8px;font-size:12px;text-align:right">${(s.interacciones||0).toLocaleString('es-CO')}</td>
       <td style="padding:8px;font-size:12px;text-align:right">${s.engagement||'—'}</td>
-      <td style="padding:8px;text-align:center"><button onclick="redesDelSnapshot(${realIdx})" style="border:none;background:none;cursor:pointer;color:#dc2626;font-size:14px">🗑️</button></td>
+      <td style="padding:8px;text-align:center"><button onclick="redesDelSnapshot(${realIdx},'${s.fecha}','${s.red}')" style="border:none;background:none;cursor:pointer;color:#dc2626;font-size:14px">🗑️</button></td>
     </tr>`;
   }).join('') || `<tr><td colspan="7" style="padding:18px;text-align:center;color:#9ca3af;font-size:13px">Aún no hay registros. Agrega tu primer snapshot diario abajo.</td></tr>`;
 
@@ -5320,27 +5475,28 @@ function renderRedes() {
     <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:12px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:#78350f;line-height:1.6">
       <strong>⚠️ Importante — por qué NO se usa usuario y contraseña:</strong><br>
       Meta (Instagram/Facebook) y TikTok <strong>prohíben</strong> el login con usuario/contraseña por API: es violación de sus términos y puede inhabilitar la cuenta del cliente. La forma oficial y segura es un <strong>token de acceso</strong> que generas una vez en el portal de desarrollador y pegas aquí. El manual paso a paso está en
-      <code style="background:#fff;padding:2px 6px;border-radius:4px">MANUAL_CONEXION_REDES.md</code>.
+      <code style="background:#fff;padding:2px 6px;border-radius:4px">MANUAL_CONEXION_REDES.md</code>.<br>
+      Los tokens se guardan en <code style="background:#fff;padding:2px 6px;border-radius:4px">clientes/{slug}/redes.json</code> del servidor y nunca se devuelven al navegador.
     </div>
 
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:18px;margin-bottom:28px">
       ${card('ig', 'linear-gradient(135deg,#833AB4,#FD1D1D,#FCB045)', '📸', 'Instagram',
         inp('redes-ig-handle','Usuario (@handle)', st.ig.handle, '@urbexad') +
         inp('redes-ig-id','Instagram Business Account ID', st.ig.igUserId, '17841400000000000') +
-        inp('redes-ig-token','Access Token (largo, 60 días)', st.ig.token, 'EAAG...', 'password'),
+        inpToken('redes-ig-token','Access Token (largo, 60 días)', st.ig.tiene_token),
         'Requiere cuenta <strong>Business o Creator</strong> vinculada a una Página de Facebook. Permiso: <code>instagram_manage_insights</code>. El token largo dura 60 días.')}
 
       ${card('fb', 'linear-gradient(135deg,#1877F2,#0a4ea8)', '👍', 'Facebook',
         inp('redes-fb-handle','Nombre de la Página', st.fb.handle, 'Urbex Architecture') +
         inp('redes-fb-id','Page ID', st.fb.pageId, '1000000000000') +
-        inp('redes-fb-token','Page Access Token', st.fb.token, 'EAAG...', 'password'),
+        inpToken('redes-fb-token','Page Access Token', st.fb.tiene_token),
         'La Página debe tener <strong>100+ likes</strong> para ver insights. Permisos: <code>pages_read_engagement</code>, <code>read_insights</code>. Algunas métricas se descontinúan el 15-jun-2026.')}
 
       ${card('tt', 'linear-gradient(135deg,#000,#25F4EE,#FE2C55)', '🎵', 'TikTok',
         inp('redes-tt-handle','Usuario (@handle)', st.tt.handle, '@urbexad') +
         inp('redes-tt-id','Open ID / Business ID', st.tt.openId, '_000000') +
-        inp('redes-tt-token','Access Token', st.tt.token, 'act...', 'password'),
-        'Requiere app aprobada en <strong>TikTok for Developers</strong> (Login Kit + Display API o Business API). La prueba en vivo se hace desde el servidor (CORS), por ahora registra manual.')}
+        inpToken('redes-tt-token','Access Token', st.tt.tiene_token),
+        'Requiere app aprobada en <strong>TikTok for Developers</strong> (Login Kit + Display API o Business API). La prueba en vivo ya corre por el <strong>proxy del servidor</strong> (<code>/api/redes/tt/:slug/probar</code>), así que el botón funciona igual que IG y FB.')}
     </div>
 
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
@@ -5385,48 +5541,63 @@ function renderRedes() {
   </div>`;
 }
 
-function redesGuardar(p) {
+const REDES_CAMPOS = {
+  ig: () => ({ handle: val('redes-ig-handle'), igUserId: val('redes-ig-id'), token: val('redes-ig-token') }),
+  fb: () => ({ handle: val('redes-fb-handle'), pageId:  val('redes-fb-id'), token: val('redes-fb-token') }),
+  tt: () => ({ handle: val('redes-tt-handle'), openId:  val('redes-tt-id'), token: val('redes-tt-token') }),
+};
+const REDES_NOMBRE = { ig: 'Instagram', fb: 'Facebook', tt: 'TikTok' };
+
+async function redesGuardar(p) {
   const slug = activeClient.slug;
-  const st = redesState(slug);
-  if (p === 'ig') st.ig = { handle:val('redes-ig-handle'), igUserId:val('redes-ig-id'), token:val('redes-ig-token') };
-  if (p === 'fb') st.fb = { handle:val('redes-fb-handle'), pageId:val('redes-fb-id'), token:val('redes-fb-token') };
-  if (p === 'tt') st.tt = { handle:val('redes-tt-handle'), openId:val('redes-tt-id'), token:val('redes-tt-token') };
+  const st   = redesState(slug);
+  const campos = REDES_CAMPOS[p]();
+  // Token vacío = conservar el que ya está guardado en el servidor.
+  st[p] = { ...st[p], ...campos, token: campos.token || st[p].token };
   redesSaveState(slug, st);
+
   const el = document.getElementById('redes-result-' + p);
-  if (el) { el.style.color = '#059669'; el.textContent = '✓ Credenciales guardadas localmente para ' + clientNombre(activeClient) + '.'; }
+  if (!serverOnline) {
+    if (el) { el.style.color = '#b45309'; el.textContent = '⚠ Servidor offline — guardado solo en este navegador.'; }
+    return false;
+  }
+  try {
+    const d = await fetch(`/api/cliente/${slug}/redes/${p}`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(campos),
+    }).then(r => r.json());
+    if (!d.ok) throw new Error(d.error || 'No se pudo guardar');
+    if (el) { el.style.color = '#059669'; el.textContent = `✓ ${REDES_NOMBRE[p]} guardado en el servidor para ${clientNombre(activeClient)}.`; }
+    return true;
+  } catch (e) {
+    if (el) { el.style.color = '#dc2626'; el.textContent = '✗ ' + e.message; }
+    return false;
+  }
 }
 
 function val(id) { const e = document.getElementById(id); return e ? e.value.trim() : ''; }
 
+// La prueba corre en el servidor: evita CORS (TikTok) y no expone el token al navegador.
 async function redesProbar(p) {
-  redesGuardar(p);
-  const res = document.getElementById('redes-result-' + p);
+  const slug = activeClient.slug;
+  const res  = document.getElementById('redes-result-' + p);
   const stat = document.getElementById('redes-status-' + p);
-  const st = redesState(activeClient.slug);
+  await redesGuardar(p);
   res.style.color = '#374151';
   res.textContent = '⏳ Probando…';
 
+  if (!serverOnline) {
+    stat.textContent = '● offline'; res.style.color = '#dc2626';
+    res.textContent = '✗ El servidor debe estar activo para probar la conexión.';
+    return;
+  }
   try {
-    if (p === 'ig') {
-      const { igUserId, token } = st.ig;
-      if (!igUserId || !token) throw new Error('Falta el Instagram Business Account ID o el token.');
-      const url = `https://graph.facebook.com/${REDES_GRAPH_VER}/${igUserId}?fields=username,followers_count,media_count&access_token=${encodeURIComponent(token)}`;
-      const r = await fetch(url); const d = await r.json();
-      if (d.error) throw new Error(d.error.message);
-      stat.textContent = '● conectado'; res.style.color = '#059669';
-      res.innerHTML = `✓ <strong>@${d.username}</strong> · ${(d.followers_count||0).toLocaleString('es-CO')} seguidores · ${d.media_count||0} publicaciones. <a href="#" onclick="redesPrefillSnap('Instagram',${d.followers_count||0});return false;" style="color:#0A1F44">→ Llevar a seguimiento</a>`;
-    } else if (p === 'fb') {
-      const { pageId, token } = st.fb;
-      if (!pageId || !token) throw new Error('Falta el Page ID o el Page Access Token.');
-      const url = `https://graph.facebook.com/${REDES_GRAPH_VER}/${pageId}?fields=name,fan_count,followers_count&access_token=${encodeURIComponent(token)}`;
-      const r = await fetch(url); const d = await r.json();
-      if (d.error) throw new Error(d.error.message);
-      stat.textContent = '● conectado'; res.style.color = '#059669';
-      res.innerHTML = `✓ <strong>${d.name}</strong> · ${(d.fan_count||d.followers_count||0).toLocaleString('es-CO')} seguidores. <a href="#" onclick="redesPrefillSnap('Facebook',${d.fan_count||d.followers_count||0});return false;" style="color:#0A1F44">→ Llevar a seguimiento</a>`;
-    } else {
-      stat.textContent = '○ manual'; res.style.color = '#b45309';
-      res.innerHTML = '⚠️ TikTok no permite la prueba directa desde el navegador (CORS). Necesita un endpoint en el servidor que haga de proxy a <code>open.tiktokapis.com</code>. Por ahora registra las métricas manualmente abajo. Ver el manual para el detalle del proxy.';
-    }
+    const r = await fetch(`/api/redes/${p}/${slug}/probar`);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'Error desconocido');
+    stat.textContent = '● conectado'; res.style.color = '#059669';
+    res.innerHTML = `✓ <strong>${d.handle || REDES_NOMBRE[p]}</strong> · ${(d.seguidores||0).toLocaleString('es-CO')} seguidores`
+      + (d.publicaciones != null ? ` · ${d.publicaciones} publicaciones` : '')
+      + `. <a href="#" onclick="redesPrefillSnap('${REDES_NOMBRE[p]}',${d.seguidores||0});return false;" style="color:#0A1F44">→ Llevar a seguimiento</a>`;
   } catch (e) {
     stat.textContent = '● error'; res.style.color = '#dc2626';
     res.textContent = '✗ ' + e.message;
@@ -5440,27 +5611,49 @@ function redesPrefillSnap(red, seguidores) {
   if (s) s.scrollIntoView({ behavior:'smooth', block:'center' });
 }
 
-function redesAddSnapshot() {
+async function redesAddSnapshot() {
   const slug = activeClient.slug;
+  const snap = {
+    fecha: val('snap-fecha') || new Date().toISOString().split('T')[0],
+    red: document.getElementById('snap-red')?.value || 'Instagram',
+    seguidores: parseInt(val('snap-seg')) || 0,
+    alcance: parseInt(val('snap-alc')) || 0,
+    interacciones: parseInt(val('snap-int')) || 0,
+  };
+
+  if (serverOnline) {
+    try {
+      const d = await fetch(`/api/cliente/${slug}/redes/snapshot`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(snap),
+      }).then(r => r.json());
+      if (!d.ok) throw new Error(d.error || 'No se pudo guardar el snapshot');
+      showToast('Snapshot guardado');
+      await renderRedes();
+      return;
+    } catch (e) { showToast('✗ ' + e.message, 4000); return; }
+  }
+
+  // Fallback offline: solo este navegador.
   const st = redesState(slug);
-  const fecha = val('snap-fecha') || new Date().toISOString().split('T')[0];
-  const red = document.getElementById('snap-red')?.value || 'Instagram';
-  const seguidores = parseInt(val('snap-seg')) || 0;
-  const alcance = parseInt(val('snap-alc')) || 0;
-  const interacciones = parseInt(val('snap-int')) || 0;
-  const engagement = alcance > 0 ? ((interacciones / alcance) * 100).toFixed(1) + '%' : '—';
-  st.snapshots.push({ fecha, red, seguidores, alcance, interacciones, engagement });
+  st.snapshots.push({ ...snap, engagement: snap.alcance > 0 ? ((snap.interacciones / snap.alcance) * 100).toFixed(1) + '%' : '—' });
   st.snapshots.sort((a, b) => a.fecha.localeCompare(b.fecha));
   redesSaveState(slug, st);
-  renderRedes();
+  await renderRedes();
 }
 
-function redesDelSnapshot(i) {
+async function redesDelSnapshot(i, fecha, red) {
   const slug = activeClient.slug;
+  if (serverOnline && fecha && red) {
+    try {
+      await fetch(`/api/cliente/${slug}/redes/snapshot?fecha=${encodeURIComponent(fecha)}&red=${encodeURIComponent(red)}`, { method: 'DELETE' });
+      await renderRedes();
+      return;
+    } catch {}
+  }
   const st = redesState(slug);
   st.snapshots.splice(i, 1);
   redesSaveState(slug, st);
-  renderRedes();
+  await renderRedes();
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -5500,11 +5693,14 @@ function engBadge(eng) {
   return `<span style="color:${color};font-weight:700">${eng.toFixed(1)}% <span style="font-weight:500;font-size:11px">(${txt})</span></span>`;
 }
 
-function renderSeguimiento() {
+async function renderSeguimiento() {
   if (!activeClient) return;
   const slug = activeClient.slug;
   const nombre = clientNombre(activeClient);
-  const st = redesState(slug);
+  document.getElementById('tab-seguimiento').innerHTML =
+    '<div style="padding:40px;text-align:center;color:var(--text2)">Cargando seguimiento…</div>';
+  // Mismos datos que Tab Redes, ahora leídos del servidor y no de localStorage.
+  const { data: st } = await redesCargar(slug, true);
   const stats = seguimientoStats(st.snapshots);
 
   const statsCards = stats.length === 0
@@ -5970,14 +6166,17 @@ ${RES_DESC[tipo]||''}`;
 async function _hReporte(slug, el) {
   el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text2)">Cargando datos del mes…</div>';
   try {
-    const [rObj, rHist] = await Promise.all([
+    const [rObj, rHist, rRes] = await Promise.all([
       fetch(`/api/cliente/${slug}/objetivos`).then(r=>r.json()),
       fetch(`/api/cliente/${slug}/historial`).then(r=>r.json()),
+      fetch(`/api/cliente/${slug}/resumen`).then(r=>r.json()).catch(()=>null),
     ]);
     const root    = rObj.ok ? rObj.data : null;
     const mes     = root?.mes_activo;
     const mesData = mes && root?.meses?.[mes];
-    const hist    = rHist.ok ? (rHist.historial || []) : [];
+    // El endpoint devuelve `bitacora`, no `historial` — antes esto era siempre []
+    // y el reporte reportaba 0 piezas aunque el mes estuviera lleno.
+    const hist    = rHist.ok ? (rHist.bitacora || []) : [];
 
     if (!mesData) {
       el.innerHTML = `<div class="h-card"><div class="h-title">📊 Reporte Mensual</div>
@@ -5994,12 +6193,20 @@ async function _hReporte(slug, el) {
     const OBJ_LABELS = {seguidores:'👥 Seguidores',leads:'🎯 Leads',asesorias:'📞 Asesorías',
       tasa_guardados:'🔖 Guardados',engagement_rate:'📈 Engagement',stories_vistas:'👁 Stories'};
 
-    // Piezas del mes en historial
-    const piezasMes = hist.filter(h => h.fecha && h.fecha.startsWith(mes));
-    const totalPiezas = piezasMes.length;
+    // Producción real del mes: estados.json es la fuente de verdad (vía /resumen).
+    // La bitácora del historial solo cuenta entregas (parrillas), no piezas sueltas.
+    const prod        = rRes?.ok ? rRes.produccion : null;
+    const entregasMes = hist.filter(h => h.fecha && h.fecha.startsWith(mes));
+    const totalPiezas = prod?.total ?? entregasMes.length;
+    const publicadas  = prod?.por_estado?.['Publicado'] ?? 0;
+    // La bitácora guarda `angulos` como texto "Educativo, Comparativo" — antes se
+    // leía p.angulo (singular, inexistente) y el top-ángulo nunca aparecía.
     const angulos = {};
-    piezasMes.forEach(p => { if(p.angulo) angulos[p.angulo] = (angulos[p.angulo]||0)+1; });
+    entregasMes.forEach(p => String(p.angulos || '').split(',')
+      .map(a => a.trim()).filter(a => a && a !== '—')
+      .forEach(a => { angulos[a] = (angulos[a] || 0) + 1; }));
     const topAngulo = Object.entries(angulos).sort((a,b)=>b[1]-a[1])[0];
+    const leadsMes  = rRes?.ok ? rRes.leads : null;
 
     // KPI cards
     const kpiCards = Object.keys(obj).filter(k=>obj[k]!=null).map(k=>{
@@ -6040,8 +6247,10 @@ async function _hReporte(slug, el) {
       }),
       '',
       `📅 *PRODUCCIÓN DEL MES*`,
-      `• Piezas creadas: ${totalPiezas}`,
+      `• Piezas programadas: ${totalPiezas}`,
+      `• Publicadas: ${publicadas}${totalPiezas ? ` (${Math.round(publicadas/totalPiezas*100)}%)` : ''}`,
       topAngulo ? `• Ángulo más usado: ${topAngulo[0]} (${topAngulo[1]} veces)` : '',
+      leadsMes ? `• Leads captados: ${leadsMes.total} · convertidos: ${leadsMes.convertidos}` : '',
       '',
       mesData.objetivo_macro ? `📌 *OBJETIVO MACRO*\n_${mesData.objetivo_macro}_\n` : '',
       `✍️ _Generado con TimeKeepers AI_`,
@@ -6084,9 +6293,11 @@ async function _hReporte(slug, el) {
 
   ${totalPiezas > 0 ? `
   <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
-    <div class="reporte-kpi" style="flex:1;min-width:140px"><div class="reporte-kpi-val">${totalPiezas}</div><div class="reporte-kpi-lbl">Piezas creadas</div></div>
+    <div class="reporte-kpi" style="flex:1;min-width:130px"><div class="reporte-kpi-val">${totalPiezas}</div><div class="reporte-kpi-lbl">Piezas del mes</div></div>
+    <div class="reporte-kpi" style="flex:1;min-width:130px"><div class="reporte-kpi-val">${publicadas}</div><div class="reporte-kpi-lbl">Publicadas</div></div>
     ${topAngulo ? `<div class="reporte-kpi" style="flex:1;min-width:140px"><div class="reporte-kpi-val" style="font-size:16px">${topAngulo[0]}</div><div class="reporte-kpi-lbl">Ángulo + usado (${topAngulo[1]}×)</div></div>` : ''}
-    <div class="reporte-kpi" style="flex:1;min-width:140px"><div class="reporte-kpi-val">${Object.entries(mix).map(([k,v])=>`${v}%`).join(' / ')}</div><div class="reporte-kpi-lbl">Mix planificado</div></div>
+    ${leadsMes ? `<div class="reporte-kpi" style="flex:1;min-width:130px"><div class="reporte-kpi-val">${leadsMes.total}</div><div class="reporte-kpi-lbl">Leads (${leadsMes.convertidos} convertidos)</div></div>` : ''}
+    <div class="reporte-kpi" style="flex:1;min-width:130px"><div class="reporte-kpi-val">${Object.entries(mix).map(([k,v])=>`${v}%`).join(' / ')}</div><div class="reporte-kpi-lbl">Mix planificado</div></div>
   </div>` : ''}
 
   <div style="font-size:10px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Resumen para WhatsApp</div>
@@ -6698,6 +6909,59 @@ function doSort(field) {
   renderHistorial();
 }
 
+// ── Nuevo cliente ─────────────────────────────────────────────────────────────
+// El endpoint /api/cliente/nuevo existía desde el inicio pero ninguna pantalla
+// lo llamaba: los clientes había que crearlos a mano en el sistema de archivos.
+function abrirNuevoCliente() {
+  if (!serverOnline) { alert('El servidor debe estar activo para crear un cliente.'); return; }
+  document.getElementById('nc-msg').textContent = '';
+  ['nc-nombre','nc-slug','nc-industria','nc-mercado','nc-web'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('nuevoClienteModal').style.display = 'flex';
+}
+
+function cerrarNuevoCliente() {
+  document.getElementById('nuevoClienteModal').style.display = 'none';
+}
+
+let _ncSlugAuto_prev = '';
+function _ncSlugAuto() {
+  const slugEl = document.getElementById('nc-slug');
+  // Solo autocompletar mientras Ivan no haya escrito su propio slug.
+  if (slugEl.value && slugEl.value !== _ncSlugAuto_prev) return;
+  const nuevo = document.getElementById('nc-nombre').value
+    .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
+  slugEl.value = nuevo;
+  _ncSlugAuto_prev = nuevo;
+}
+
+async function crearNuevoCliente() {
+  const msg = document.getElementById('nc-msg');
+  const nombre = document.getElementById('nc-nombre').value.trim();
+  const slug   = document.getElementById('nc-slug').value.trim();
+  if (!nombre || !slug) { msg.style.color = '#dc2626'; msg.textContent = 'Nombre y slug son obligatorios.'; return; }
+
+  msg.style.color = '#374151'; msg.textContent = '⏳ Creando estructura…';
+  try {
+    const d = await fetch('/api/cliente/nuevo', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        slug, nombre,
+        industria:   document.getElementById('nc-industria').value.trim(),
+        mercado:     document.getElementById('nc-mercado').value.trim(),
+        website_url: document.getElementById('nc-web').value.trim(),
+        plan:        document.getElementById('nc-plan').value,
+      }),
+    }).then(r => r.json());
+    if (!d.ok) throw new Error(d.error || 'No se pudo crear');
+    msg.style.color = '#059669'; msg.textContent = '✓ Cliente creado. Recargando…';
+    localStorage.setItem('tk_client', d.slug);
+    setTimeout(() => location.reload(), 700);
+  } catch (e) {
+    msg.style.color = '#dc2626'; msg.textContent = '✗ ' + e.message;
+  }
+}
+
 // ── Refresh ───────────────────────────────────────────────────────────────────
 async function doRefresh() {
   // Siempre intentar conectar — no confiar en el flag serverOnline, que puede
@@ -6711,7 +6975,7 @@ async function doRefresh() {
     }
   } catch {}
   serverOnline = false;
-  alert('No se pudo conectar al servidor.\n1. Abre PowerShell → cd servidor → node servidor.js\n2. Verifica que esta página esté abierta en http://localhost:3737/dashboard.html (no como archivo)\n3. Vuelve a presionar Actualizar');
+  alert('No se pudo conectar al servidor.\n1. En una terminal: cd servidor && node servidor.js\n2. Verifica que esta página esté abierta en http://localhost:3737/dashboard.html (no como archivo)\n3. Vuelve a presionar Actualizar');
 }
 
 // ══════════════════════════════════════════════════════════════════════════════

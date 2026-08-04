@@ -1,24 +1,25 @@
 # PENDIENTES — TimeKeepers AI Dashboard
 
 > Lista viva de tareas. Conforme se completan, se marcan con `[x]` y se mueve el detalle a `AVANCES.md`.
-> Para el estado general, ver `CONTEXTO_PARA_NUEVA_SESION.md`. Última actualización: **2026-06-10**.
+> Para el estado general, ver `CONTEXTO_PARA_NUEVA_SESION.md`. Última actualización: **2026-07-29**.
+> Auditoría de conexión completa y pruebas end-to-end: ver **`INFORME_CONEXION.md`**.
 
 ---
 
 ## 🔴 PRIORIDAD ALTA
 
-- [ ] **Proxy de TikTok en el servidor** — endpoint `GET /api/redes/tiktok/:slug` que lea el token guardado, llame a `open.tiktokapis.com/v2/user/info/` y devuelva los datos al dashboard (el navegador no puede por CORS). Habilita el botón "Probar conexión" de TikTok.
-- [ ] **Almacenamiento seguro de tokens de redes** — mover las credenciales de `localStorage` a un archivo cifrado en el servidor (`clientes/{slug}/redes.secret.json`, AES). Que el navegador nunca vea el token crudo. Añadir a `.gitignore`.
+- [x] ~~**Proxy de TikTok en el servidor**~~ — hecho 2026-07-29: `GET /api/redes/:plataforma/:slug/probar` cubre `ig`, `fb` y `tt` con el mismo contrato. El botón "Probar conexión" ya funciona en las tres.
+- [ ] **Cifrar los tokens en disco (AES)** — parcialmente resuelto 2026-07-29: los tokens salieron de `localStorage`, viven en `clientes/{slug}/redes.json` (ya en `.gitignore`) y el servidor nunca los devuelve al navegador. Falta cifrarlos en reposo con clave en `.env`.
 - [ ] **PASO 5 — Link de aprobación para clientes** — `POST /api/cliente/:slug/estados/:mes/link-aprobacion` → token (7 días). Página `http://localhost:3737/aprobar?token=xxx` con la pieza + botones Aprobar/Rechazar → guarda en `estados.json`.
 - [ ] **PASO 13 — Panel de Integraciones** — Search Console + Meta Ads por cliente, métricas reales en Tab Objetivos. (`website_url` ya está en identity.json.)
 
 ## 🟡 PRIORIDAD MEDIA
 
-- [ ] **Persistencia de snapshots de redes en el servidor** — hoy el seguimiento diario vive en `localStorage`. Guardar también en `clientes/{slug}/redes-historico.json` para no perderlo si se limpia el navegador y poder graficar tendencias.
-- [ ] **Gráfica de evolución en Tab Redes** — mostrar la curva de seguidores/engagement a partir de los snapshots (línea de tiempo).
+- [x] ~~**Persistencia de snapshots de redes en el servidor**~~ — hecho 2026-07-29: `clientes/{slug}/redes.json` + endpoints POST/DELETE de snapshot. Un registro por fecha+red. Ya alimentan el Tab Resumen y el Excel Master.
+- [ ] **Gráfica de evolución en Tab Redes** — mostrar la curva de seguidores/engagement a partir de los snapshots (línea de tiempo). *Los datos ya están en el servidor (`/api/cliente/:slug/redes` devuelve `stats`); falta solo dibujarlos.*
 - [ ] **Auto-extracción de métricas de redes** — botón que traiga insights completos (alcance, impresiones, interacciones) vía Graph API Insights, no solo seguidores, y rellene el snapshot del día automáticamente.
 - [ ] **Feedback loop performance → contenido** — que los resultados de una parrilla (leads, engagement, CPL) ajusten automáticamente el brief de la siguiente. Requiere PASO 13.
-- [ ] **PASO 6 — Reporte de cierre mensual** — resumen ejecutivo (piezas, objetivos vs reales, ángulos, métricas de redes) exportable a PDF. `renderResumen()` + `/api/cliente/:slug/reporte/:mes`.
+- [ ] **PASO 6 — Reporte de cierre mensual en PDF** — el reporte ya existe y funciona (Herramientas → Reporte Mensual, con texto de WhatsApp e impresión). Falta la exportación a PDF con plantilla propia. *Corregido 2026-07-29: leía una clave inexistente del historial y siempre reportaba 0 piezas.*
 
 ## 🟢 PRIORIDAD BAJA
 
@@ -30,9 +31,10 @@
 ## 🧪 VALIDACIONES PENDIENTES
 
 - [ ] Probar el flujo completo de Tab Redes con una cuenta real de Instagram Business (token largo).
-- [ ] `objetivo_macro` en Tab Estrategia de cada cliente — si está vacío, el banner del generador muestra "sin objetivo". Rellenar antes de generar.
+- [ ] `objetivo_macro` en Tab Estrategia — falta en `draken-vip`, `lunamarte` y `maria-fernanda` (no tienen `objetivos.json`). Verificado 2026-07-29 con `scripts/probar-pestanas.sh`.
 - [ ] Módulo SEO Web con sitios no-Wix (WordPress, Squarespace).
-- [ ] Tab Objetivos con cliente nuevo que no tiene `objetivos.json`.
+- [x] ~~Tab Objetivos con cliente nuevo sin `objetivos.json`~~ — resuelto 2026-07-29: `/api/cliente/nuevo` ya crea el scaffold de objetivos, estados, leads y redes.
+- [ ] **`timekeepers-ai` no tiene `identity.json`** — única prueba que falla en todo el sistema.
 
 ## 🧹 LIMPIEZA
 
@@ -44,6 +46,18 @@
 ---
 
 ## ✅ COMPLETADO RECIENTE (se archiva en AVANCES.md)
+
+### Sesión 8 — 2026-07-29 · Auditoría de conexión (detalle en `INFORME_CONEXION.md`)
+- [x] **Fix: Tab Producción no mostraba stories ni reels** — el scan de `/archivos` usaba `return` en vez de `continue` y abortaba tras la primera subcarpeta.
+- [x] **Fix: Excel Master hoja Identity vacía** — leía `identity.nombre` en vez de los códigos de schema (`A`, `B`, `W`…). Ahora vuelca los 47 campos.
+- [x] **Fix: Excel Master hoja Historial siempre en 0** — regex de un formato que ningún `_historial.md` usa. Ahora reusa `leerHistorial()`.
+- [x] **Fix: Reporte Mensual reportaba 0 piezas** — leía `rHist.historial` (la clave es `bitacora`) y `p.angulo` (es `angulos`).
+- [x] **Fix: leads creados por API quedaban fuera de los filtros** — defaults `Nuevo`/`Instagram DM` alineados a `Nuevo Lead`/`Instagram`.
+- [x] **Tab Resumen conectado** — nuevo `GET /api/cliente/:slug/resumen`; antes solo leía el snapshot estático de `data.js`.
+- [x] **Botón ➕ Nuevo cliente** — `/api/cliente/nuevo` existía pero ninguna pantalla lo llamaba; ahora además crea el identity semilla y todos los scaffolds.
+- [x] **Nuevas hojas en Excel Master** — Leads y Redes.
+- [x] **Script de pruebas** `scripts/probar-pestanas.sh` — golpea los endpoints de las 12 pestañas para cualquier cliente.
+- [x] **Cliente ficticio `aurora-bakehouse`** — datos completos en las 12 pestañas para validar el sistema (borrable con `rm -rf clientes/aurora-bakehouse`).
 
 - [x] **Validador QA sincronizado con el schema actual del prompt** — eliminados los warnings falsos de `nivel_produccion`/`hora_sugerida`, R3 valida `cta_keyword` y objetivo dual, hashtags nicho+geo ya no penalizan. Parrilla de junio pasó de 7.1 → 10/10 — sesión 7.
 - [x] **Fix SEO audit** — ahora carga el identity desde `00-identity/identity.json` (antes siempre llegaba null) — sesión 7.

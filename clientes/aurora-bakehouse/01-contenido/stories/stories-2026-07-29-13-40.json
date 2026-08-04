@@ -1,0 +1,78 @@
+{
+  "meta": {
+    "cliente": "aurora-bakehouse",
+    "slug": "aurora-bakehouse",
+    "tema": "Qué es la masa madre, explicado sin tecnicismos",
+    "objetivo": "Educativa",
+    "tipo_cadena": "Pregunta-revelación",
+    "total_slides": 5,
+    "elemento_interactivo": "Poll",
+    "cta_final": "DM 'ENCARGO'",
+    "generado": "2026-07-02"
+  },
+  "slides": [
+    {
+      "numero": 1,
+      "rol": "Gancho",
+      "texto_overlay": "Tu pan lleva un ingrediente vivo",
+      "copy_apoyo": "Y no aparece en ninguna etiqueta...",
+      "visual": "Fondo negro sólido con un frasco de masa madre burbujeando a contraluz, sin mostrar pan terminado",
+      "elemento_interactivo": "Ninguno",
+      "duracion_sugerida": "Video clip 4s",
+      "notas_diseño": "Tipografía Canela Text blanca centrada, 44pt. Nada de producto final: se revela al cierre."
+    },
+    {
+      "numero": 2,
+      "rol": "Desarrollo",
+      "texto_overlay": "Harina y agua. Nada más.",
+      "copy_apoyo": "Se alimenta cada día como una mascota",
+      "visual": "Manos alimentando el frasco con harina y agua, mesón de madera, luz lateral",
+      "elemento_interactivo": "Ninguno",
+      "duracion_sugerida": "Video clip 5s",
+      "notas_diseño": "Texto abajo sobre franja crema #F2E8DC al 80% de opacidad"
+    },
+    {
+      "numero": 3,
+      "rol": "Interactivo",
+      "texto_overlay": "¿En qué etapa estás?",
+      "copy_apoyo": "Responde y te mandamos lo que sigue",
+      "visual": "Fondo café #6B4423 plano con el frasco desenfocado al fondo",
+      "elemento_interactivo": "Poll: 'Solo tengo curiosidad' / 'Quiero comprar pan de verdad'",
+      "duracion_sugerida": "Foto 7s",
+      "notas_diseño": "Sticker de encuesta centrado. RS8: la pregunta segmenta intención de compra, no opinión técnica."
+    },
+    {
+      "numero": 4,
+      "rol": "Clímax",
+      "texto_overlay": "Fermentar 24 horas la hace digerible",
+      "copy_apoyo": "El industrial tarda dos. Por eso pesa.",
+      "visual": "Timelapse de la masa duplicando volumen en el bowl, con reloj sobreimpreso",
+      "elemento_interactivo": "Ninguno",
+      "duracion_sugerida": "Video clip 6s",
+      "notas_diseño": "Reloj en esquina superior derecha corriendo de 00:00 a 24:00"
+    },
+    {
+      "numero": 5,
+      "rol": "CTA",
+      "texto_overlay": "Horneado hoy, no ayer",
+      "copy_apoyo": "Fermentación declarada en cada pan. Retiro el mismo día. Escríbenos ENCARGO.",
+      "visual": "Pan campesino partido sobre lino crudo, logo Aurora abajo, fondo oscuro #2E2A25",
+      "elemento_interactivo": "Ninguno",
+      "duracion_sugerida": "Foto 7s",
+      "notas_diseño": "RS9-B: incluye cumplimiento de alcance (fermentación declarada) y de tiempo (horneado hoy). Un solo CTA."
+    }
+  ],
+  "specs_produccion": {
+    "formato": "9:16 · 1080×1920px",
+    "duracion_total_estimada": "5 slides = aprox. 29s de visualización",
+    "paleta_aplicada": "#6B4423 #D9A441 #F2E8DC #2E2A25",
+    "material_requerido": [
+      "Frasco de masa madre activo — video a contraluz",
+      "Alimentado de la masa — manos en mesón",
+      "Timelapse del bulk en bowl",
+      "Pan campesino partido sobre lino"
+    ],
+    "herramientas_sugeridas": "CapCut + Canva"
+  },
+  "auto_qa": "5/5 slides aprobados · RS1–RS9 aprobadas · QA Técnico: aprobado"
+}

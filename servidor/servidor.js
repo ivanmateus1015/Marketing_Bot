@@ -560,7 +560,7 @@ app.get('/api/skills/:nombre', (req, res) => {
 
 // ── Utilidades ────────────────────────────────────────────────────────────────
 app.post('/api/cliente/nuevo', async (req, res) => {
-  const { slug, nombre } = req.body;
+  const { slug, nombre, industria, mercado, website_url, plan } = req.body;
   if (!slug) return res.status(400).json({ ok: false, error: 'slug requerido' });
   const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, '-');
   const clienteDir = getClienteDir(cleanSlug);
@@ -584,12 +584,48 @@ app.post('/api/cliente/nuevo', async (req, res) => {
   }
 
   // Crear historial
-  const histContent = `# Historial de Producción — ${nombre || cleanSlug}\n\n## Resumen\n- Total de piezas creadas: 0\n- Última actividad: —\n- Plan activo: [POR DEFINIR]\n\n## Ángulos usados (anti-redundancia)\n| Ángulo | Conteo |\n|--------|--------|\n| Ejecutivo | 0 |\n| Aspiracional | 0 |\n| Educativo | 0 |\n| Lifestyle | 0 |\n\n## Bitácora cronológica\n\n| Fecha | Tipo | Archivo | Skills aplicadas | Ángulos | Score |\n|-------|------|---------|------------------|---------|-------|\n`;
+  const histContent = `# Historial de Producción — ${nombre || cleanSlug}\n\n## Resumen\n- Total de piezas creadas: 0\n- Última actividad: —\n- Plan activo: ${plan || '[POR DEFINIR]'}\n\n## Ángulos usados (anti-redundancia)\n| Ángulo | Conteo |\n|--------|--------|\n| Ejecutivo | 0 |\n| Aspiracional | 0 |\n| Educativo | 0 |\n| Lifestyle | 0 |\n| Comparativo | 0 |\n| Caso de éxito | 0 |\n| Detrás de cámaras | 0 |\n| Promocional | 0 |\n\n## Bitácora cronológica\n\n| Fecha | Tipo | Archivo | Skills aplicadas | Ángulos | Score |\n|-------|------|---------|------------------|---------|-------|\n`;
   fs.writeFileSync(path.join(clienteDir, '_historial.md'), histContent, 'utf8');
 
-  log(`Nuevo cliente creado: ${cleanSlug}`);
+  // identity.json semilla — sin esto el Tab Cliente queda vacío y el cliente no
+  // aparece con nombre en el selector. Los campos van por código de schema.
+  const identityJson = {};
+  for (const campo of getSchema().campos) {
+    if (campo.tipo_dato === 'auto') continue;
+    identityJson[campo.codigo] = `[POR DEFINIR — ${campo.nombre_humano || campo.codigo}]`;
+  }
+  if (nombre)    identityJson['A']  = nombre;
+  if (industria) identityJson['J']  = industria;
+  if (mercado)   identityJson['K']  = mercado;
+  if (plan)      identityJson['AA'] = plan;
+  identityJson['website_url'] = website_url || '';
+  fs.writeFileSync(path.join(clienteDir, '00-identity', 'identity.json'), JSON.stringify(identityJson, null, 2), 'utf8');
+  fs.writeFileSync(path.join(clienteDir, '00-identity', 'identity.md'), generarIdentityMd(identityJson, cleanSlug), 'utf8');
+
+  // Scaffolds de los tabs con estado propio — así ninguno arranca en error 404.
+  const mesActual = new Date().toISOString().substring(0, 7);
+  fs.writeFileSync(path.join(clienteDir, 'objetivos.json'), JSON.stringify({
+    mes_activo: mesActual,
+    meses: {
+      [mesActual]: {
+        mes: mesActual,
+        north_star_metric: 'leads',
+        objetivo_macro: '',
+        objetivos: { seguidores: 0, leads: 0, asesorias: 0 },
+        mix_contenido: { Awareness: 50, Conversion: 35, Educacion: 15 },
+        semanas: [],
+        resultados_reales: {},
+        notas: `Cliente creado el ${new Date().toLocaleDateString('es-CO')}`,
+      },
+    },
+  }, null, 2), 'utf8');
+  fs.writeFileSync(path.join(clienteDir, 'estados.json'), JSON.stringify({ meses: { [mesActual]: { piezas: [], stories: [] } } }, null, 2), 'utf8');
+  fs.writeFileSync(path.join(clienteDir, 'leads.json'),   JSON.stringify({ leads: [] }, null, 2), 'utf8');
+  fs.writeFileSync(getRedesPath(cleanSlug),               JSON.stringify(REDES_VACIO(), null, 2), 'utf8');
+
+  log(`Nuevo cliente creado: ${cleanSlug} (identity + objetivos + estados + leads + redes)`);
   generarDashboardData();
-  res.json({ ok: true, slug: cleanSlug, dir: clienteDir });
+  res.json({ ok: true, slug: cleanSlug, dir: clienteDir, mes: mesActual });
 });
 
 app.get('/api/dashboard-data', (req, res) => {
@@ -616,7 +652,9 @@ app.get('/api/cliente/:slug/archivos', (req, res) => {
         if (item === '.gitkeep') continue;
         const full = path.join(dir, item);
         const stat = fs.statSync(full);
-        if (stat.isDirectory()) { scan(full, path.join(rel, item)); return; }
+        // `continue`, no `return`: con return se abortaba el resto de la carpeta y
+        // 01-contenido solo listaba parrillas/ (stories/ y reels/ nunca aparecían).
+        if (stat.isDirectory()) { scan(full, path.join(rel, item)); continue; }
         archivos.push({
           nombre: item,
           carpeta: rel.split(path.sep)[0] || rel,
@@ -1616,6 +1654,109 @@ function autoGenerarStoriesExcel(jsonPath) {
   }
 }
 
+// ── Registro automático en _historial.md ────────────────────────────────────
+const ANGULOS_BASE_HISTORIAL = ['Ejecutivo', 'Aspiracional', 'Educativo', 'Lifestyle', 'Comparativo', 'Caso de éxito', 'Detrás de cámaras', 'Promocional'];
+
+function plantillaHistorial(nombre, plan) {
+  const filas = ANGULOS_BASE_HISTORIAL.map(a => `| ${a} | 0 |`).join('\n');
+  return `# Historial de Producción — ${nombre}\n\n## Resumen\n- Total de piezas creadas: 0\n- Última actividad: —\n- Plan activo: ${plan || '[POR DEFINIR]'}\n\n## Ángulos usados (anti-redundancia)\n| Ángulo | Conteo |\n|--------|--------|\n${filas}\n\n## Bitácora cronológica\n\n| Fecha | Tipo | Archivo | Skills aplicadas | Ángulos | Score |\n|-------|------|---------|------------------|---------|-------|\n`;
+}
+
+const RX_ESCAPE = /[.*+?^${}()|[\]\\]/g;
+const escapeRx = (s) => s.replace(RX_ESCAPE, '\\$&');
+
+// entrada = { fecha, tipo, archivo, skills, angulos (array, con repetidos), angulosTexto, score, totalPiezas }
+function registrarEntradaHistorial(slug, entrada) {
+  const clienteDir = getClienteDir(slug);
+  const histPath = path.join(clienteDir, '_historial.md');
+  let content = readFileSafe(histPath);
+
+  if (!content) {
+    const identity = readJsonSafe(path.join(clienteDir, '00-identity', 'identity.json')) || {};
+    content = plantillaHistorial(identity['A'] || slug, identity['AA'] || '');
+  }
+
+  // Ya registrado — no duplicar si el mismo archivo vuelve a dispararse
+  if (new RegExp(`\\|\\s*${escapeRx(entrada.archivo)}\\s*\\|`).test(content)) return false;
+
+  content = content.replace(/- Total de piezas creadas:\s*(\d+)/, (_m, n) => `- Total de piezas creadas: ${parseInt(n, 10) + entrada.totalPiezas}`);
+  content = content.replace(/- Última actividad:\s*.+/, `- Última actividad: ${entrada.fecha}`);
+
+  const angulosCount = {};
+  for (const a of entrada.angulos) angulosCount[a] = (angulosCount[a] || 0) + 1;
+
+  const angulosBlockMatch = content.match(/## Ángulos usados[\s\S]*?\n\n/);
+  if (angulosBlockMatch) {
+    let block = angulosBlockMatch[0];
+    for (const [angulo, count] of Object.entries(angulosCount)) {
+      const rowRx = new RegExp(`\\|\\s*${escapeRx(angulo)}\\s*\\|\\s*(\\d+)\\s*\\|`);
+      block = rowRx.test(block)
+        ? block.replace(rowRx, (_m, n) => `| ${angulo} | ${parseInt(n, 10) + count} |`)
+        : block.replace(/\n\n$/, `\n| ${angulo} | ${count} |\n\n`);
+    }
+    content = content.replace(angulosBlockMatch[0], block);
+  }
+
+  const fila = `| ${entrada.fecha} | ${entrada.tipo} | ${entrada.archivo} | ${entrada.skills} | ${entrada.angulosTexto} | ${entrada.score} |`;
+  // Insertar como última fila DENTRO de la tabla de Bitácora, sin importar qué venga
+  // después en el archivo (ej. "## Notas de la cuenta") — nunca al final del archivo.
+  const bitacoraRx = /(## Bitácora cronológica\n\n\|.*\|\n\|[-\s|]+\|\n(?:\|.*\|\n?)*)/;
+  if (bitacoraRx.test(content)) {
+    content = content.replace(bitacoraRx, (bloque) => bloque.replace(/\n*$/, '\n') + fila + '\n');
+  } else if (content.includes('## Bitácora cronológica')) {
+    content = content.replace('## Bitácora cronológica', `## Bitácora cronológica\n\n| Fecha | Tipo | Archivo | Skills aplicadas | Ángulos | Score |\n|-------|------|---------|------------------|---------|-------|\n${fila}`);
+  } else {
+    content = content.replace(/\n*$/, '\n') + `\n## Bitácora cronológica\n\n| Fecha | Tipo | Archivo | Skills aplicadas | Ángulos | Score |\n|-------|------|---------|------------------|---------|-------|\n${fila}\n`;
+  }
+
+  fs.mkdirSync(clienteDir, { recursive: true });
+  fs.writeFileSync(histPath, content, 'utf8');
+  return true;
+}
+
+const MESES_HISTORIAL = { '01': 'enero', '02': 'febrero', '03': 'marzo', '04': 'abril', '05': 'mayo', '06': 'junio', '07': 'julio', '08': 'agosto', '09': 'septiembre', '10': 'octubre', '11': 'noviembre', '12': 'diciembre' };
+
+// Registra la parrilla en _historial.md apenas su JSON aparece en disco — no depende
+// de que el prompt/Claude recuerde actualizar el historial manualmente (paso que se
+// venía saltando y dejaba la pestaña Historial sin las parrillas creadas).
+function autoRegistrarParrillaHistorial(jsonPath) {
+  try {
+    const data = readJsonSafe(jsonPath);
+    if (!data || !Array.isArray(data.piezas) || data.piezas.length === 0) return;
+
+    const partes = jsonPath.split(path.sep);
+    const slug = partes[partes.indexOf('clientes') + 1];
+    if (!slug) return;
+
+    const meta = data.meta || {};
+    const fecha = /^\d{4}-\d{2}-\d{2}$/.test(meta.generado || '')
+      ? meta.generado
+      : new Date().toISOString().split('T')[0];
+    const [, mesNum] = fecha.split('-');
+    const totalPiezas = meta.total_piezas || data.piezas.length;
+    const semanasTxt = meta.semanas ? ` — ${meta.semanas} semana${meta.semanas === 1 ? '' : 's'}` : '';
+    const eventoTxt  = meta.evento && meta.evento !== 'null' ? ` · ${meta.evento}` : '';
+    const tipo = `Parrilla — ${totalPiezas} piezas ${MESES_HISTORIAL[mesNum] || ''}${semanasTxt}${eventoTxt}`.replace(/\s+/g, ' ').trim();
+
+    const angulos = data.piezas.map(p => p.angulo).filter(Boolean);
+    const angulosTexto = [...new Set(angulos)].join(', ') || '—';
+
+    const resultado = validarParrilla(data);
+    const score = resultado && resultado.ok ? resultado.score.toFixed(1) : '—';
+
+    const registrado = registrarEntradaHistorial(slug, {
+      fecha, tipo, archivo: path.basename(jsonPath), skills: '—',
+      angulos, angulosTexto, score, totalPiezas,
+    });
+    if (registrado) {
+      log(`[auto-historial] Parrilla registrada: ${path.basename(jsonPath)} → ${slug}/_historial.md (score ${score})`);
+      generarDashboardData();
+    }
+  } catch (e) {
+    log(`[auto-historial] Error registrando parrilla en historial: ${e.message}`);
+  }
+}
+
 // Guardar JSON + generar Excel automáticamente (endpoint directo)
 app.post('/api/cliente/:slug/guardar-stories', (req, res) => {
   const { slug } = req.params;
@@ -1698,6 +1839,9 @@ function getEstadosPath(slug) {
 function getLeadsPath(slug) {
   return path.join(getClienteDir(slug), 'leads.json');
 }
+function getRedesPath(slug) {
+  return path.join(getClienteDir(slug), 'redes.json');
+}
 
 // ── CRM de Leads ──────────────────────────────────────────────────────────────
 app.get('/api/cliente/:slug/leads', (req, res) => {
@@ -1721,10 +1865,12 @@ app.post('/api/cliente/:slug/leads', (req, res) => {
     nombre:          req.body.nombre          || '',
     empresa:         req.body.empresa         || '',
     telefono:        req.body.telefono        || '',
-    canal:           req.body.canal           || 'Instagram DM',
+    // Los valores por defecto deben coincidir con CANALES_LEAD / ESTADOS_LEAD del
+    // dashboard; si no, el lead queda fuera de los filtros del CRM.
+    canal:           req.body.canal           || 'Instagram',
     keyword:         req.body.keyword         || '',
     fecha:           req.body.fecha           || new Date().toISOString().substring(0,10),
-    estado:          req.body.estado          || 'Nuevo',
+    estado:          req.body.estado          || 'Nuevo Lead',
     interes:         req.body.interes         || '',
     valor_estimado:  req.body.valor_estimado  || null,
     notas:           req.body.notas           || '',
@@ -2293,6 +2439,259 @@ app.post('/api/search/reindex', async (req, res) => {
   } catch (e) { res.status(500).json({ ok: false, error: e.message }); }
 });
 
+// ══════════════════════════════════════════════════════════════════════════════
+// REDES SOCIALES — persistencia en servidor (antes vivía solo en localStorage)
+// ══════════════════════════════════════════════════════════════════════════════
+const REDES_VACIO = () => ({
+  ig: { handle: '', igUserId: '', token: '' },
+  fb: { handle: '', pageId: '', token: '' },
+  tt: { handle: '', openId: '', token: '' },
+  snapshots: [],
+});
+
+function leerRedes(slug) {
+  const data = readJsonSafe(getRedesPath(slug));
+  if (!data) return REDES_VACIO();
+  const base = REDES_VACIO();
+  return {
+    ig: { ...base.ig, ...(data.ig || {}) },
+    fb: { ...base.fb, ...(data.fb || {}) },
+    tt: { ...base.tt, ...(data.tt || {}) },
+    snapshots: Array.isArray(data.snapshots) ? data.snapshots : [],
+  };
+}
+
+function guardarRedes(slug, st) {
+  fs.writeFileSync(getRedesPath(slug), JSON.stringify(st, null, 2), 'utf8');
+}
+
+// Los tokens nunca salen del servidor: se devuelve solo un indicador de presencia.
+function enmascararRedes(st) {
+  const mask = (o) => {
+    const { token, ...resto } = o;
+    return { ...resto, token: '', tiene_token: !!token };
+  };
+  return { ig: mask(st.ig), fb: mask(st.fb), tt: mask(st.tt), snapshots: st.snapshots };
+}
+
+// Métricas agregadas por red — las consumen Tab Seguimiento y Tab Resumen.
+function statsRedes(snapshots) {
+  const porRed = {};
+  for (const s of snapshots || []) (porRed[s.red] = porRed[s.red] || []).push(s);
+  return Object.keys(porRed).map(red => {
+    const arr = porRed[red].slice().sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)));
+    const engs = arr.map(s => parseFloat(String(s.engagement).replace('%', ''))).filter(n => !isNaN(n));
+    return {
+      red,
+      registros: arr.length,
+      desde: arr[0].fecha,
+      hasta: arr[arr.length - 1].fecha,
+      seguidores: arr[arr.length - 1].seguidores || 0,
+      crecimiento: (arr[arr.length - 1].seguidores || 0) - (arr[0].seguidores || 0),
+      engProm: engs.length ? +(engs.reduce((a, b) => a + b, 0) / engs.length).toFixed(2) : null,
+    };
+  });
+}
+
+app.get('/api/cliente/:slug/redes', (req, res) => {
+  const { slug } = req.params;
+  if (!clienteExiste(slug)) return res.status(404).json({ ok: false, error: 'Cliente no existe' });
+  const st = leerRedes(slug);
+  res.json({ ok: true, slug, data: enmascararRedes(st), stats: statsRedes(st.snapshots) });
+});
+
+// Guarda la config de una red. Si `token` viene vacío, se conserva el que ya existía.
+app.put('/api/cliente/:slug/redes/:plataforma', (req, res) => {
+  const { slug, plataforma } = req.params;
+  if (!clienteExiste(slug)) return res.status(404).json({ ok: false, error: 'Cliente no existe' });
+  if (!['ig', 'fb', 'tt'].includes(plataforma))
+    return res.status(400).json({ ok: false, error: 'Plataforma inválida. Válidas: ig, fb, tt' });
+
+  const st = leerRedes(slug);
+  const prev = st[plataforma];
+  const body = req.body || {};
+  st[plataforma] = {
+    ...prev,
+    ...body,
+    token: body.token ? body.token : prev.token,
+  };
+  guardarRedes(slug, st);
+  log(`[${slug}] Redes: config de ${plataforma} guardada`);
+  res.json({ ok: true, data: enmascararRedes(st) });
+});
+
+app.post('/api/cliente/:slug/redes/snapshot', (req, res) => {
+  const { slug } = req.params;
+  if (!clienteExiste(slug)) return res.status(404).json({ ok: false, error: 'Cliente no existe' });
+  const { fecha, red, seguidores = 0, alcance = 0, interacciones = 0 } = req.body || {};
+  if (!red) return res.status(400).json({ ok: false, error: 'Campo requerido: red' });
+
+  const st = leerRedes(slug);
+  const snap = {
+    fecha: fecha || new Date().toISOString().substring(0, 10),
+    red,
+    seguidores: Number(seguidores) || 0,
+    alcance: Number(alcance) || 0,
+    interacciones: Number(interacciones) || 0,
+    engagement: Number(alcance) > 0 ? ((Number(interacciones) / Number(alcance)) * 100).toFixed(1) + '%' : '—',
+  };
+  // Un solo registro por (fecha, red): re-registrar el mismo día sobrescribe.
+  const idx = st.snapshots.findIndex(s => s.fecha === snap.fecha && s.red === snap.red);
+  if (idx === -1) st.snapshots.push(snap); else st.snapshots[idx] = snap;
+  st.snapshots.sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)));
+  guardarRedes(slug, st);
+  log(`[${slug}] Redes: snapshot ${snap.red} ${snap.fecha}`);
+  res.json({ ok: true, snapshot: snap, stats: statsRedes(st.snapshots) });
+});
+
+app.delete('/api/cliente/:slug/redes/snapshot', (req, res) => {
+  const { slug } = req.params;
+  if (!clienteExiste(slug)) return res.status(404).json({ ok: false, error: 'Cliente no existe' });
+  const { fecha, red } = req.query;
+  if (!fecha || !red) return res.status(400).json({ ok: false, error: 'Parámetros requeridos: fecha, red' });
+  const st = leerRedes(slug);
+  const antes = st.snapshots.length;
+  st.snapshots = st.snapshots.filter(s => !(s.fecha === fecha && s.red === red));
+  guardarRedes(slug, st);
+  res.json({ ok: true, eliminados: antes - st.snapshots.length, stats: statsRedes(st.snapshots) });
+});
+
+// ── Proxy de plataformas (el navegador no puede: CORS / token expuesto) ──────
+function getJson(urlStr) {
+  return new Promise((resolve, reject) => {
+    const req = https.get(urlStr, { headers: { 'User-Agent': 'TimeKeepersAI/2.0' } }, (r) => {
+      let body = '';
+      r.setEncoding('utf8');
+      r.on('data', c => { body += c; });
+      r.on('end', () => {
+        try { resolve({ status: r.statusCode, json: JSON.parse(body) }); }
+        catch { reject(new Error(`Respuesta no-JSON (HTTP ${r.statusCode})`)); }
+      });
+    });
+    req.setTimeout(12000, () => req.destroy(new Error('Timeout de la API (12s)')));
+    req.on('error', reject);
+  });
+}
+
+const GRAPH_VER = 'v23.0';
+
+app.get('/api/redes/:plataforma/:slug/probar', async (req, res) => {
+  const { plataforma, slug } = req.params;
+  if (!clienteExiste(slug)) return res.status(404).json({ ok: false, error: 'Cliente no existe' });
+  const st = leerRedes(slug);
+
+  try {
+    if (plataforma === 'ig') {
+      const { igUserId, token } = st.ig;
+      if (!igUserId || !token) throw new Error('Falta el Instagram Business Account ID o el token. Guárdalos primero.');
+      const { json } = await getJson(`https://graph.facebook.com/${GRAPH_VER}/${igUserId}?fields=username,followers_count,media_count&access_token=${encodeURIComponent(token)}`);
+      if (json.error) throw new Error(json.error.message);
+      return res.json({ ok: true, plataforma, handle: json.username, seguidores: json.followers_count || 0, publicaciones: json.media_count || 0 });
+    }
+    if (plataforma === 'fb') {
+      const { pageId, token } = st.fb;
+      if (!pageId || !token) throw new Error('Falta el Page ID o el Page Access Token. Guárdalos primero.');
+      const { json } = await getJson(`https://graph.facebook.com/${GRAPH_VER}/${pageId}?fields=name,fan_count,followers_count&access_token=${encodeURIComponent(token)}`);
+      if (json.error) throw new Error(json.error.message);
+      return res.json({ ok: true, plataforma, handle: json.name, seguidores: json.fan_count || json.followers_count || 0, publicaciones: null });
+    }
+    if (plataforma === 'tt') {
+      // PENDIENTE #1 del backlog: el navegador no puede llamar a TikTok por CORS.
+      const { token } = st.tt;
+      if (!token) throw new Error('Falta el Access Token de TikTok. Guárdalo primero.');
+      const { json } = await getJson(`https://open.tiktokapis.com/v2/user/info/?fields=display_name,follower_count,likes_count,video_count&access_token=${encodeURIComponent(token)}`);
+      if (json.error && json.error.code && json.error.code !== 'ok')
+        throw new Error(json.error.message || json.error.code);
+      const u = json.data && json.data.user ? json.data.user : {};
+      return res.json({ ok: true, plataforma, handle: u.display_name || st.tt.handle, seguidores: u.follower_count || 0, publicaciones: u.video_count || 0 });
+    }
+    return res.status(400).json({ ok: false, error: 'Plataforma inválida. Válidas: ig, fb, tt' });
+  } catch (e) {
+    log(`[${slug}] Redes ${plataforma} — error: ${e.message}`);
+    res.status(502).json({ ok: false, error: e.message });
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RESUMEN CONSOLIDADO — une identity + objetivos + producción + leads + redes
+// ══════════════════════════════════════════════════════════════════════════════
+app.get('/api/cliente/:slug/resumen', (req, res) => {
+  const { slug } = req.params;
+  if (!clienteExiste(slug)) return res.status(404).json({ ok: false, error: 'Cliente no existe' });
+
+  const identity = readJsonSafe(path.join(getClienteDir(slug), '00-identity', 'identity.json'));
+  const sr       = resumenScore(identity);
+  const historial = leerHistorial(slug);
+
+  // Objetivos del mes activo
+  const objRoot = readJsonSafe(getObjetivosPath(slug)) || { meses: {} };
+  const mes     = objRoot.mes_activo || Object.keys(objRoot.meses || {}).pop() || null;
+  const mesData = mes ? (objRoot.meses || {})[mes] : null;
+
+  const kpis = [];
+  if (mesData) {
+    const metas  = mesData.objetivos || {};
+    const reales = mesData.resultados_reales || {};
+    for (const [k, meta] of Object.entries(metas)) {
+      const real = reales[k];
+      kpis.push({ key: k, meta, real: real ?? null, pct: real != null && meta > 0 ? Math.round((real / meta) * 100) : null });
+    }
+  }
+
+  // Producción del mes activo (estados.json)
+  const estRoot = readJsonSafe(getEstadosPath(slug)) || { meses: {} };
+  const mesEst  = (mes && (estRoot.meses || {})[mes]) || (estRoot.meses || {})[Object.keys(estRoot.meses || {}).pop()] || null;
+  const LEGACY  = { 'Borrador': 'Guion', 'En revisión': 'Aprobación cliente', 'Aprobado': 'Programado', '⬜ Pendiente': 'Guion', '1️⃣ Guion': 'Guion' };
+  const norm    = e => LEGACY[e] || e || 'Guion';
+  const items   = mesEst ? [...(mesEst.piezas || []), ...(mesEst.stories || [])] : [];
+  const porEstado = {};
+  for (const e of ['Guion', 'Producción', 'Aprobación cliente', 'Programado', 'Publicado']) porEstado[e] = 0;
+  for (const it of items) porEstado[norm(it.estado)] = (porEstado[norm(it.estado)] || 0) + 1;
+
+  // Leads
+  const leads = (readJsonSafe(getLeadsPath(slug)) || { leads: [] }).leads || [];
+  const porEstadoLead = {};
+  for (const l of leads) porEstadoLead[l.estado || 'Sin estado'] = (porEstadoLead[l.estado || 'Sin estado'] || 0) + 1;
+  const valorPipeline = leads.reduce((t, l) => t + (Number(l.valor_estimado) || 0), 0);
+
+  // Redes
+  const redes = leerRedes(slug);
+
+  // Archivos
+  let archivos = 0;
+  for (const sub of ['01-contenido', '02-paid-ads', '03-email', '04-landing-pages']) {
+    const subPath = path.join(getClienteDir(slug), sub);
+    if (!fs.existsSync(subPath)) continue;
+    (function scan(dir) {
+      for (const item of fs.readdirSync(dir)) {
+        if (item === '.gitkeep') continue;
+        const full = path.join(dir, item);
+        if (fs.statSync(full).isDirectory()) scan(full); else archivos++;
+      }
+    })(subPath);
+  }
+
+  res.json({
+    ok: true, slug,
+    identity: {
+      nombre: identity?.['A'] || slug,
+      tagline: identity?.['W'] || '',
+      industria: identity?.['J'] || '—',
+      mercado: identity?.['K'] || '—',
+      tono: identity?.['C'] || '—',
+      plan: identity?.['AA'] || '—',
+      website_url: identity?.['website_url'] || '',
+      score: sr.score, campos_llenos: sr.llenos, campos_pendientes: sr.pendientes,
+    },
+    objetivos: { mes, objetivo_macro: mesData?.objetivo_macro || '', north_star: mesData?.north_star_metric || null, kpis, mix: mesData?.mix_contenido || null, semanas: (mesData?.semanas || []).length },
+    produccion: { mes, total: items.length, piezas: (mesEst?.piezas || []).length, stories: (mesEst?.stories || []).length, por_estado: porEstado, pct_publicado: items.length ? Math.round((porEstado['Publicado'] / items.length) * 100) : 0 },
+    leads: { total: leads.length, por_estado: porEstadoLead, convertidos: porEstadoLead['Convertido'] || 0, valor_pipeline: valorPipeline },
+    redes: { stats: statsRedes(redes.snapshots), snapshots: redes.snapshots.length, conectadas: ['ig', 'fb', 'tt'].filter(p => !!redes[p].token) },
+    historial: { total: historial.total, ultima_actividad: historial.ultimaActividad, angulos: historial.angulos, entradas: historial.bitacora.length },
+    archivos,
+  });
+});
+
 // ── File watcher ──────────────────────────────────────────────────────────────
 let regenTimer = null;
 function regenDebounced(filePath) {
@@ -2315,6 +2714,10 @@ chokidar.watch(CLIENTES_DIR, { ignoreInitial: true, depth: 4 })
     // Auto-generar Excel cuando se guarda un stories JSON
     if (filePath.endsWith('.json') && filePath.includes(`${path.sep}stories${path.sep}`)) {
       autoGenerarStoriesExcel(filePath);
+    }
+    // Auto-registrar en _historial.md cuando se guarda una parrilla JSON
+    if (filePath.endsWith('.json') && filePath.includes(`${path.sep}parrillas${path.sep}`)) {
+      autoRegistrarParrillaHistorial(filePath);
     }
     regenDebounced(filePath);
   });
@@ -2500,7 +2903,6 @@ function generarExcelMaster(slug) {
   const identityPath = path.join(getClienteDir(slug), '00-identity', 'identity.json');
   const objPath      = getObjetivosPath(slug);
   const estPath      = getEstadosPath(slug);
-  const histPath     = path.join(getClienteDir(slug), '_historial.md');
 
   const identity = fs.existsSync(identityPath) ? readJsonSafe(identityPath) : {};
   const objRoot  = fs.existsSync(objPath)      ? readJsonSafe(objPath)      : null;
@@ -2510,22 +2912,24 @@ function generarExcelMaster(slug) {
   const now = new Date().toLocaleDateString('es-CO');
 
   // ── Hoja 1: Identity ────────────────────────────────────────────────────────
-  const idRows = [['Campo', 'Valor']];
-  const ID_FIELDS = [
-    ['nombre','Nombre'], ['tagline','Tagline'], ['industria','Industria'],
-    ['ciudad','Ciudad'], ['website_url','Website'], ['tono','Tono de marca'],
-    ['propuesta_valor','Propuesta de valor'], ['buyer_persona','Buyer persona'],
-    ['colores','Colores'], ['hashtags','Hashtags'], ['cta_principal','CTA principal'],
-    ['pain_points','Pain points'], ['objeciones','Objeciones'],
-  ];
-  for (const [key, label] of ID_FIELDS) {
-    const val = identity[key];
-    if (val !== undefined && val !== null && val !== '') {
-      idRows.push([label, Array.isArray(val) ? val.join(', ') : String(val)]);
-    }
+  // identity.json guarda los campos por CÓDIGO del schema (A, B, C…), no por
+  // nombre en inglés. Antes se leía identity.nombre/.tagline/… y la hoja salía vacía.
+  const idRows = [['Bloque', 'Campo', 'Código', 'Valor']];
+  for (const campo of getSchema().campos) {
+    if (campo.tipo_dato === 'auto') continue;
+    const val = identity[campo.codigo];
+    const bloque = (campo.bloque || '').replace(/^\d+_/, '').replace(/_/g, ' ');
+    idRows.push([
+      bloque,
+      campo.nombre_humano || campo.campo_n8n || campo.codigo,
+      campo.codigo,
+      val === undefined || val === null || val === '' ? '[POR DEFINIR]'
+        : Array.isArray(val) ? val.join(', ') : String(val),
+    ]);
   }
+  if (identity.website_url) idRows.push(['extra', 'Website', 'website_url', String(identity.website_url)]);
   const wsId = XLSX.utils.aoa_to_sheet(idRows);
-  wsId['!cols'] = [{ wch: 22 }, { wch: 60 }];
+  wsId['!cols'] = [{ wch: 22 }, { wch: 30 }, { wch: 8 }, { wch: 70 }];
   XLSX.utils.book_append_sheet(wb, wsId, '🆔 Identity');
 
   // ── Hoja 2: Objetivos & KPIs ─────────────────────────────────────────────
@@ -2576,24 +2980,50 @@ function generarExcelMaster(slug) {
   XLSX.utils.book_append_sheet(wb, wsEst, '📁 Estados Producción');
 
   // ── Hoja 5: Historial ────────────────────────────────────────────────────
-  const histRows = [['Fecha', 'Tipo', 'Archivo', 'Skills', 'Score', 'Ángulos']];
-  if (fs.existsSync(histPath)) {
-    const md = fs.readFileSync(histPath, 'utf8');
-    for (const line of md.split('\n')) {
-      const m = line.match(/^- \*\*(\d{4}-\d{2}-\d{2})\*\* \| (\S+) \| ([^\|]+) \| ([^\|]+) \| score:([^\|]+) \| ángulos:(.+)/i);
-      if (m) histRows.push([m[1].trim(), m[2].trim(), m[3].trim(), m[4].trim(), m[5].trim(), m[6].trim()]);
-    }
+  // Reusa leerHistorial(), el mismo parser que alimenta el Tab Historial. Antes
+  // había aquí un regex de un formato ("- **fecha** | … | score:…") que ningún
+  // _historial.md usa, así que la hoja salía siempre vacía.
+  const histRows = [['Fecha', 'Tipo', 'Archivo', 'Skills', 'Ángulos', 'Score']];
+  const histData = leerHistorial(slug);
+  for (const e of histData.bitacora) {
+    histRows.push([e.fecha, e.tipo, e.archivo, e.skills, e.angulos, e.score]);
   }
   const wsHist = XLSX.utils.aoa_to_sheet(histRows);
-  wsHist['!cols'] = [{ wch: 12 }, { wch: 10 }, { wch: 45 }, { wch: 30 }, { wch: 8 }, { wch: 40 }];
+  wsHist['!cols'] = [{ wch: 12 }, { wch: 34 }, { wch: 40 }, { wch: 40 }, { wch: 40 }, { wch: 8 }];
   XLSX.utils.book_append_sheet(wb, wsHist, '📈 Historial');
 
-  // ── Hoja 6: Resumen Ejecutivo ────────────────────────────────────────────
+  // ── Hoja 6: Leads (CRM) ──────────────────────────────────────────────────
+  const leadsRoot = readJsonSafe(getLeadsPath(slug)) || { leads: [] };
+  const leadRows = [['ID', 'Fecha', 'Nombre', 'Empresa', 'Teléfono', 'Canal', 'Keyword', 'Estado', 'Interés', 'Valor estimado', 'Notas']];
+  for (const l of leadsRoot.leads || []) {
+    leadRows.push([l.id, l.fecha || '—', l.nombre || '—', l.empresa || '—', l.telefono || '—',
+                   l.canal || '—', l.keyword || '—', l.estado || '—', l.interes || '—',
+                   l.valor_estimado ?? '—', l.notas || '']);
+  }
+  const wsLeads = XLSX.utils.aoa_to_sheet(leadRows);
+  wsLeads['!cols'] = [{ wch: 5 }, { wch: 12 }, { wch: 24 }, { wch: 24 }, { wch: 16 }, { wch: 14 }, { wch: 12 }, { wch: 18 }, { wch: 30 }, { wch: 14 }, { wch: 40 }];
+  XLSX.utils.book_append_sheet(wb, wsLeads, '👥 Leads');
+
+  // ── Hoja 7: Redes Sociales ───────────────────────────────────────────────
+  const redesRoot = readJsonSafe(getRedesPath(slug)) || { snapshots: [] };
+  const redRows = [['Fecha', 'Red', 'Seguidores', 'Alcance', 'Interacciones', 'Engagement']];
+  for (const s of redesRoot.snapshots || []) {
+    redRows.push([s.fecha, s.red, s.seguidores || 0, s.alcance || 0, s.interacciones || 0, s.engagement || '—']);
+  }
+  const wsRed = XLSX.utils.aoa_to_sheet(redRows);
+  wsRed['!cols'] = [{ wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 12 }];
+  XLSX.utils.book_append_sheet(wb, wsRed, '📲 Redes');
+
+  // ── Hoja 8: Resumen Ejecutivo ────────────────────────────────────────────
   const resumen = [
     ['EXCEL MASTER — TimeKeepers AI', ''],
-    ['Cliente', identity.nombre || slug],
+    ['Cliente', identity['A'] || slug],
     ['Generado', now],
-    ['Industria', identity.industria || '—'],
+    ['Industria', identity['J'] || '—'],
+    ['Ciudad / mercado', identity['K'] || '—'],
+    ['Tagline', identity['W'] || '—'],
+    ['Plan', identity['AA'] || '—'],
+    ['Score Identity', `${calcularScore(identity)}/10`],
     ['Website', identity.website_url || '—'],
     ['', ''],
     ['RESUMEN DE PRODUCCIÓN', ''],
@@ -2601,6 +3031,11 @@ function generarExcelMaster(slug) {
     ['Piezas del mes', (estRoot ? Object.values(estRoot.meses || {}).reduce((t, m) => t + (m.piezas||[]).length, 0) : 0)],
     ['Stories del mes', (estRoot ? Object.values(estRoot.meses || {}).reduce((t, m) => t + (m.stories||[]).length, 0) : 0)],
     ['Publicadas', (estRoot ? Object.values(estRoot.meses || {}).reduce((t, m) => t + [...(m.piezas||[]), ...(m.stories||[])].filter(p => p.estado === 'Publicado').length, 0) : 0)],
+    ['', ''],
+    ['CRM Y REDES', ''],
+    ['Leads registrados', (leadsRoot.leads || []).length],
+    ['Leads convertidos', (leadsRoot.leads || []).filter(l => l.estado === 'Convertido').length],
+    ['Snapshots de redes', (redesRoot.snapshots || []).length],
   ];
   const wsRes = XLSX.utils.aoa_to_sheet(resumen);
   wsRes['!cols'] = [{ wch: 30 }, { wch: 40 }];
